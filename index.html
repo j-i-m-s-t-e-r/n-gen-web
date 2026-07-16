@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>n_Gen — web port</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-title">
+        <span class="mono dim">n_Gen</span><span class="mono accent">.web</span>
+      </div>
+      <div class="topbar-sub mono dim">2001 Director source, decompiled & re-hosted — see README</div>
+    </header>
+
+    <div class="layout">
+      <aside class="panel">
+        <label class="field-label mono">module</label>
+        <select id="module-select" class="mono"></select>
+
+        <label class="field-label mono">text 1</label>
+        <input id="txt1" class="mono" type="text" value="n_gen">
+
+        <label class="field-label mono">text 2</label>
+        <input id="txt2" class="mono" type="text" value="web port">
+
+        <label class="field-label mono">text 3</label>
+        <input id="txt3" class="mono" type="text" value="2026">
+
+        <button id="generate-btn" class="generate-btn mono">Generate</button>
+        <button id="download-btn" class="download-btn mono">Download PNG</button>
+
+        <div class="panel-footer mono dim">
+          placeholder shapes shown until real assets are<br>wired in — see tools/build_manifest.py
+        </div>
+      </aside>
+
+      <main class="stage-wrap">
+        <div id="stage" class="stage"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/engine.js"></script>
+  <script src="js/modules.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
