@@ -128,6 +128,8 @@ class Layer {
       this.textEl.className = 'ngen-layer-text';
       this.el.appendChild(this.textEl);
     }
+    this.textFont = randomFont();
+    this.textEl.style.fontFamily = this.textFont;
     // Original modules set several named vars (txt, txt1, txt1cap, txt2,
     // txt3) meant for separate text fields inside one Flash sprite. We
     // don't know your exported layout for these yet, so by default we
@@ -186,14 +188,21 @@ class Layer {
 
   _render() {
     this.el.style.display = this.visible ? 'block' : 'none';
-    const t = [
-      `translate(${this.x}px, ${this.y}px)`,
-      `translate(-50%, -50%)`,
+    const w = this.naturalW || 0, h = this.naturalH || 0;
+    // Explicit left/top (not a percentage-based translate(-50%,-50%)
+    // trick) so this uses the exact same numbers exportPNG() uses for
+    // its canvas draw — two different transform systems computing "center
+    // this layer at (x,y)" independently is exactly how they drift apart.
+    this.el.style.left = (this.x - w / 2) + 'px';
+    this.el.style.top = (this.y - h / 2) + 'px';
+    this.el.style.width = w + 'px';
+    this.el.style.height = h + 'px';
+    this.el.style.transformOrigin = '50% 50%';
+    this.el.style.transform = [
       `rotate(${this.rotation}deg)`,
       `skewX(${this.skew}deg)`,
       `scale(${this.scale * this.flipH}, ${this.scale * this.flipV})`,
     ].join(' ');
-    this.el.style.transform = t;
     this.el.style.opacity = this.blend / 100;
   }
 
@@ -257,6 +266,26 @@ class Stage {
       ctx.scale(layer.scale * layer.flipH, layer.scale * layer.flipV);
       ctx.drawImage(layer.img, -layer.naturalW / 2, -layer.naturalH / 2, layer.naturalW, layer.naturalH);
       ctx.restore();
+
+      // Text overlays (setVariable) render as a separate flex-centered div
+      // on screen — match that here rather than silently omitting captions,
+      // which the download previously did entirely.
+      const text = layer.textEl && layer.textEl.textContent;
+      if (text) {
+        ctx.save();
+        ctx.globalAlpha = layer.blend / 100;
+        ctx.translate(layer.x, layer.y);
+        ctx.rotate((layer.rotation * Math.PI) / 180);
+        ctx.font = `14px ${layer.textFont || "'IBM Plex Sans', sans-serif"}`;
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetY = 1;
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+      }
     }
 
     return canvas.toDataURL('image/png');

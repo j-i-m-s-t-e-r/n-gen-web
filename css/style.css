@@ -127,7 +127,11 @@ select:focus, input[type="text"]:focus {
   display: none;
   pointer-events: none;
 }
-.ngen-layer img { display: block; max-width: none; }
+/* Random font per layer is assigned in JS (js/fontpool.js) from a pool of
+   free Google Fonts — see index.html for the font-loading <link> tags.
+   This is a fallback for before that assignment happens. */
+
+.ngen-layer img { display: block; width: 100%; height: 100%; max-width: none; }
 .ngen-layer-text {
   position: absolute;
   inset: 0;
@@ -135,9 +139,9 @@ select:focus, input[type="text"]:focus {
   align-items: center;
   justify-content: center;
   color: white;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  mix-blend-mode: difference;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
 }
 
 @media (prefers-reduced-motion: reduce) {
