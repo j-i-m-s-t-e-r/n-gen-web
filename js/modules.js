@@ -21,20 +21,31 @@
 const MODULES = {
 
   generic: {
-    label: 'Generic',
+    label: 'n_Generic',
     layerIds: [11, 43, 45, 47],
     run(stage) {
       stage.layer(11).setColor([rgb(242, 250, 252), rgb(219, 235, 240), rgb(229, 242, 206)]);
       stage.layer(11).setOnOff(1);
 
+      // These three never receive setColor in the original script either —
+      // faithful to the source. But measured against the real app (headless
+      // capture), leaving them at the engine's white default produces a
+      // dramatic colorfulness gap (confirmed ~12x on the analogous techno
+      // case) — Director's true Score-authored default color for these
+      // sprites isn't recoverable from the decompiled scripts, so this
+      // reuses the module's own palette rather than leaving them grayscale.
+      const genPalette = [rgb(242, 250, 252), rgb(219, 235, 240), rgb(229, 242, 206)];
+
       const l47 = stage.layer(47);
       l47.setPosition(0, 0, 0, 0);
+      l47.setColor(genPalette);
       l47.setOnOff(1);
       l47.setFlashFrame();
 
       const l45 = stage.layer(45);
       l45.setPosition(-100, -10, 140, 10);
       l45.setBlend(30, 70);
+      l45.setColor(genPalette);
       l45.setOnOff(1);
       l45.setFlashFrame();
 
@@ -42,6 +53,7 @@ const MODULES = {
       l43.setPosition(-100, -200, 100, 100);
       l43.setBlend(40, 70);
       l43.setScale(60, 90);
+      l43.setColor(genPalette);
       l43.setOnOff(1);
       l43.setFlashFrame();
     },
@@ -53,7 +65,7 @@ const MODULES = {
   },
 
   cal: {
-    label: 'Calnoir',
+    label: 'California Noir',
     layerIds: [11, 13, 43, 45, 47],
     run(stage) {
       stage.layer(11).setColor([rgb(1, 1, 1), rgb(255, 255, 255), rgb(50, 50, 60), rgb(50, 50, 40)]);
@@ -65,6 +77,9 @@ const MODULES = {
       l13.setRotation([0, 90, -90, 180]);
       l13.setSkew([0, 0, 0, 0, 0, 0, 0, -2, 2]);
       l13.setBlend(30, 100);
+      // never colored in the original either — see generic module's note
+      // on the measured colorfulness gap and why this reuses cal's palette
+      l13.setColor([rgb(1, 1, 1), rgb(255, 255, 255), rgb(50, 50, 60), rgb(50, 50, 40)]);
       l13.setRandomOnOff([1, 1, 1, 1, 0]);
       l13.setFlashFrame();
 
@@ -105,7 +120,7 @@ const MODULES = {
   },
 
   techno: {
-    label: 'Techno (spcfrm)',
+    label: 'Spacefarm',
     layerIds: [11, 13, 21, 23, 27, 43, 45, 47],
     run(stage) {
       stage.layer(11).setColor([
@@ -114,12 +129,24 @@ const MODULES = {
       ]);
       stage.layer(11).setOnOff(1);
 
+      // 13/21/27/43 never receive setColor in the original script either —
+      // faithful to the source. But this is the module where we directly
+      // measured the consequence: real app colorfulness averaged 49.1,
+      // web port averaged 4.1 (every single web frame less colorful than
+      // every single real frame, zero overlap). Reusing techno's own vivid
+      // palette here rather than leaving these four sprites grayscale.
+      const technoPalette = [
+        rgb(1, 1, 1), rgb(255, 255, 250), rgb(50, 50, 60), rgb(255, 50, 40),
+        rgb(62, 72, 107), rgb(174, 250, 0), rgb(255, 103, 255), rgb(0, 250, 229), rgb(49, 102, 213),
+      ];
+
       const l13 = stage.layer(13);
       l13.setPosition(-100, 0, 100, 0);
       l13.setScale(80, 250);
       l13.setFlipH([1, 0]);
       l13.setRotation([0, 180]);
       l13.setBlend(30, 100);
+      l13.setColor(technoPalette);
       l13.setOnOff(1);
       l13.setFlashFrame();
 
@@ -129,6 +156,7 @@ const MODULES = {
       l21.setRotation([0, 90, -90, 180]);
       l21.setPosition(-400, -200, 400, 200);
       l21.setBlend(20, 50);
+      l21.setColor(technoPalette);
       l21.setFlashFrame();
 
       const l23 = stage.layer(23);
@@ -145,6 +173,7 @@ const MODULES = {
       l27.setFlipH([1, 0]);
       l27.setRotation([0, 90, 180]);
       l27.setBlend(60, 90);
+      l27.setColor(technoPalette);
       l27.setRandomOnOff([1, 0, 0]);
       l27.setScale(50, 100);
       l27.setFlashFrame();
@@ -172,6 +201,7 @@ const MODULES = {
       l43.setScale(90, 120);
       l43.setRotation([0, 0, 0, 0, 0, -90]);
       l43.setBlend(50, 90);
+      l43.setColor(technoPalette);
       l43.setOnOff(1);
       l43.setFlashFrame();
     },
@@ -183,7 +213,7 @@ const MODULES = {
   },
 
   mod: {
-    label: 'Modern',
+    label: 'die Modernist',
     layerIds: [11, 31],
     // Original supports bcard/bcardL/pcard/pcardL/cd/record/page/pageL/web
     // print-format sizing; web port defaults to 'page' since that's the
@@ -194,6 +224,16 @@ const MODULES = {
       stage.layer(11).setColor([rgb(255, 255, 255)]);
       stage.layer(11).setOnOff(1);
       const l31 = stage.layer(31);
+      l31.registration = 'topleft'; // full-canvas cover image, not a centered sprite
+      // Never colored in the original either — see generic module's note on
+      // the measured colorfulness gap. mod has no existing palette to reuse
+      // (its background is always plain white), so this is an invented
+      // palette rather than one recovered from source. Avoiding white/
+      // near-white entries deliberately: multiply-blend tinting with white
+      // is the identity operation (no visible effect at all), which an
+      // earlier version of this palette included — silently leaving ~half
+      // of all generates grayscale despite "successfully" setting a color.
+      l31.setColor([rgb(20, 20, 20), rgb(200, 30, 30), rgb(20, 60, 120), rgb(180, 150, 20)]);
       l31.setOnOff(1);
       l31.setFlashFrame();
 
@@ -214,7 +254,7 @@ const MODULES = {
   },
 
   ftool: {
-    label: 'Ftool',
+    label: 'Future Tool',
     layerIds: [11, 13, 21, 23, 25, 27, 41, 43, 45, 47, 52],
     run(stage) {
       const { left: theLeft, right: theRight, bottom: theBot } = stage.liveArea;
@@ -230,6 +270,8 @@ const MODULES = {
       l13.setFlipH([1, 0]);
       l13.setRotation([0, 180]);
       l13.setBlend(30, 100);
+      // never colored in the original either — see generic module's note
+      l13.setColor(bgcolorList);
       l13.setRandomOnOff([1, 1, 1, 0]);
       l13.setFlashFrame();
 
@@ -257,6 +299,8 @@ const MODULES = {
         point(theRight - 200, theBot - 100), point(theLeft + 200, theBot - 100),
       ]);
       l27.setFlipH([1, 0]);
+      // never colored in the original either — see generic module's note
+      l27.setColor(bgcolorList);
       l27.setRandomOnOff([1, 0, 0]);
       l27.setScale(50, 100);
       l27.setFlashFrame();
@@ -298,6 +342,10 @@ const MODULES = {
       const l41 = stage.layer(41);
       l41.setPositionPoint(l27.x + rnd(-20, 20), l27.y + rnd(-20, 20));
       l41.setOnOff(l27.visible ? 0 : 1);
+      // never colored in the original either — see generic module's note.
+      // Matters extra here: l25 below derives ITS color from l41.color, so
+      // leaving l41 white was silently cascading the same problem into l25.
+      l41.setColor(bgcolorList);
 
       const l25 = stage.layer(25);
       l25.setColor([rgb(60, 0, 40), rgb(255, 0, 33), rgb(0, 198, 255), rgb(181, 214, 173), rgb(250, 250, 255)]);
@@ -315,6 +363,8 @@ const MODULES = {
       ]);
       l52.setFlipH([1, 0]);
       l52.setBlend(80, 90);
+      // never colored in the original either — see generic module's note
+      l52.setColor(bgcolorList);
       l52.setRandomOnOff([1, 1, 1, 0]);
       l52.setScale(80, 100);
       l52.setFlashFrame();
@@ -335,7 +385,7 @@ const MODULES = {
   },
 
   urb: {
-    label: 'Urban',
+    label: 'Urbivore',
     layerIds: [11, 13, 31, 47],
     run(stage, format = 'page') {
       const { left: theLeft, top: theTop } = stage.liveArea;
@@ -349,20 +399,30 @@ const MODULES = {
       ]);
       stage.layer(11).setOnOff(1);
 
+      const urbPalette = [
+        rgb(1, 1, 1), rgb(5, 67, 98), rgb(61, 74, 83), rgb(88, 100, 126), rgb(255, 98, 0),
+        rgb(153, 0, 0), rgb(91, 105, 115), rgb(111, 151, 155), rgb(174, 250, 0), rgb(255, 255, 255), rgb(235, 255, 255),
+      ];
+
       const l13 = stage.layer(13);
       l13.setFlipH([1, 0]);
       l13.setBlend(50, 90);
+      // never colored in the original either — see generic module's note
+      l13.setColor(urbPalette);
       l13.setOnOff(1);
       l13.setFlashFrame();
 
       // simplified from the original's per-format offset table: 'page'
       // is the meaningful default for a web port (see mod.run note above)
       const l31 = stage.layer(31);
+      l31.registration = 'topleft'; // full-canvas cover image, same as mod's sprite 31
       const l47 = stage.layer(47);
       l31.setPositionPoint(theLeft + pick(Xoffset.slice(0, 2)), theTop + pick(Yoffset.slice(0, 5)));
       l47.setPositionPoint(theLeft + pick(Xoffset.slice(0, 3)), theTop + pick(Yoffset.slice(0, 5)));
 
       l31.setBlend(90, 100);
+      // never colored in the original either — see generic module's note
+      l31.setColor(urbPalette);
       l31.setOnOff(1);
       l31.setFlashFrame();
 

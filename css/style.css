@@ -139,10 +139,16 @@ select:focus, input[type="text"]:focus {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 12px;
+}
+.ngen-layer-text span {
+  background: rgba(0,0,0,0.55);
   color: white;
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 14px;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  font-size: 15px;
+  line-height: 1.3;
+  padding: 4px 10px;
+  border-radius: 2px;
+  max-width: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {

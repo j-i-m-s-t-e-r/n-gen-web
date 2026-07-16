@@ -74,6 +74,13 @@ class Layer {
     this.skew = 0;
     this.flipH = 1; this.flipV = 1;
     this.blend = 100;
+    // Most sprites register from center — correct for the small
+    // decorative/accent layers most modules use. Sprite 31 in mod/urb is
+    // different: a full-canvas "hero" cover image positioned via
+    // setPositionPoint(31, point(liveArea.left, liveArea.top)), which
+    // only makes sense if it registers from its top-left corner (see
+    // modules.js, set explicitly per-layer where needed).
+    this.registration = 'center';
     // Director sprites always carry *some* .color even if a script never
     // calls setColor on them — doFtoolscript reads sprite(41).color at one
     // point without ever setting it first, relying on that default. White
@@ -126,17 +133,24 @@ class Layer {
     if (!this.textEl) {
       this.textEl = document.createElement('div');
       this.textEl.className = 'ngen-layer-text';
+      this.textSpan = document.createElement('span');
+      this.textEl.appendChild(this.textSpan);
       this.el.appendChild(this.textEl);
     }
     this.textFont = randomFont(this.stage.currentModule);
-    this.textEl.style.fontFamily = this.textFont;
+    this.textSpan.style.fontFamily = this.textFont;
     // Original modules set several named vars (txt, txt1, txt1cap, txt2,
     // txt3) meant for separate text fields inside one Flash sprite. We
     // don't know your exported layout for these yet, so by default we
     // just concatenate whatever's set — swap this for real per-field
     // <span data-var="txt1"> elements inside your asset once you wire
     // real assets in.
-    this.textEl.textContent = Object.values(this.vars).join(' ');
+    this.textSpan.textContent = Object.values(this.vars).join(' ');
+    // setVariable can be called before any other property-setter has
+    // triggered a render on this layer (e.g. if a module calls setColor
+    // then setVariable with nothing else in between) — don't rely on a
+    // prior call having already sized/positioned the box correctly.
+    this._render();
   }
 
   async _applyFrame(frame) {
@@ -189,15 +203,13 @@ class Layer {
   _render() {
     this.el.style.display = this.visible ? 'block' : 'none';
     const w = this.naturalW || 0, h = this.naturalH || 0;
-    // Explicit left/top (not a percentage-based translate(-50%,-50%)
-    // trick) so this uses the exact same numbers exportPNG() uses for
-    // its canvas draw — two different transform systems computing "center
-    // this layer at (x,y)" independently is exactly how they drift apart.
-    this.el.style.left = (this.x - w / 2) + 'px';
-    this.el.style.top = (this.y - h / 2) + 'px';
+    const offX = this.registration === 'topleft' ? 0 : w / 2;
+    const offY = this.registration === 'topleft' ? 0 : h / 2;
+    this.el.style.left = (this.x - offX) + 'px';
+    this.el.style.top = (this.y - offY) + 'px';
     this.el.style.width = w + 'px';
     this.el.style.height = h + 'px';
-    this.el.style.transformOrigin = '50% 50%';
+    this.el.style.transformOrigin = this.registration === 'topleft' ? '0 0' : '50% 50%';
     this.el.style.transform = [
       `rotate(${this.rotation}deg)`,
       `skewX(${this.skew}deg)`,
@@ -213,7 +225,7 @@ class Layer {
     this.flipH = 1; this.flipV = 1;
     this.blend = 100;
     this.vars = {};
-    if (this.textEl) this.textEl.textContent = '';
+    if (this.textSpan) this.textSpan.textContent = '';
     this._render();
   }
 }
@@ -270,31 +282,38 @@ class Stage {
 
     for (const layer of Object.values(this.layers)) {
       if (!layer.visible || !layer.naturalW) continue;
+      const offX = layer.registration === 'topleft' ? 0 : layer.naturalW / 2;
+      const offY = layer.registration === 'topleft' ? 0 : layer.naturalH / 2;
       ctx.save();
       ctx.globalAlpha = layer.blend / 100;
       ctx.translate(layer.x, layer.y);
       ctx.rotate((layer.rotation * Math.PI) / 180);
       ctx.transform(1, 0, Math.tan((layer.skew * Math.PI) / 180), 1, 0, 0);
       ctx.scale(layer.scale * layer.flipH, layer.scale * layer.flipV);
-      ctx.drawImage(layer.img, -layer.naturalW / 2, -layer.naturalH / 2, layer.naturalW, layer.naturalH);
+      ctx.drawImage(layer.img, -offX, -offY, layer.naturalW, layer.naturalH);
       ctx.restore();
 
-      // Text overlays (setVariable) render as a separate flex-centered div
-      // on screen — match that here rather than silently omitting captions,
-      // which the download previously did entirely.
-      const text = layer.textEl && layer.textEl.textContent;
+      // Text overlays (setVariable) render as a background-pill span on
+      // screen — match that here rather than silently omitting captions,
+      // which the download previously did entirely. Solid-fill background
+      // instead of a shadow: 14px white text with just a soft shadow was
+      // disappearing against busy photographic backgrounds (techno/urb).
+      const text = layer.textSpan && layer.textSpan.textContent;
       if (text) {
         ctx.save();
         ctx.globalAlpha = layer.blend / 100;
         ctx.translate(layer.x, layer.y);
         ctx.rotate((layer.rotation * Math.PI) / 180);
-        ctx.font = `14px ${layer.textFont || "'IBM Plex Sans', sans-serif"}`;
-        ctx.fillStyle = '#ffffff';
+        ctx.font = `600 15px ${layer.textFont || "'IBM Plex Sans', sans-serif"}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 3;
-        ctx.shadowOffsetY = 1;
+        const metrics = ctx.measureText(text);
+        const padX = 10, padY = 4;
+        const boxW = metrics.width + padX * 2;
+        const boxH = 15 + padY * 2;
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(-boxW / 2, -boxH / 2, boxW, boxH);
+        ctx.fillStyle = '#ffffff';
         ctx.fillText(text, 0, 0);
         ctx.restore();
       }

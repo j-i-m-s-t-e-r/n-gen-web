@@ -3,7 +3,12 @@ let currentModule = 'generic';
 let manifest = null;
 
 async function init() {
-  stage = new Stage(document.getElementById('stage'), { width: 1000, height: 700 });
+  // Real n_Gen's content area measures 566x734px (aspect ratio 0.771,
+  // essentially US Letter portrait proportions) — confirmed by headless
+  // capture of the actual exe across 120 generated frames, dead consistent
+  // across all six modules. The previous 1000x700 landscape guess was the
+  // wrong orientation entirely, not just a minor size mismatch.
+  stage = new Stage(document.getElementById('stage'), { width: 850, height: 1100 });
   manifest = await loadManifest();
 
   const select = document.getElementById('module-select');
