@@ -133,6 +133,13 @@ class Layer {
     if (!this.textEl) {
       this.textEl = document.createElement('div');
       this.textEl.className = 'ngen-layer-text';
+      // Confirmed against the real app: sprite 47 is always the Headline,
+      // 45 the Subhead, 43 the Body Copy — consistent across generic/cal/
+      // techno/ftool's separate-sprite-per-field pattern. mod/urb instead
+      // pack multiple named vars onto a single sprite (31) — that case
+      // isn't split apart here, still a known simplification (see README).
+      const role = { 47: 'headline', 45: 'subhead', 43: 'body' }[this.id];
+      if (role) this.textEl.dataset.role = role;
       this.textSpan = document.createElement('span');
       this.textEl.appendChild(this.textSpan);
       this.el.appendChild(this.textEl);
@@ -293,28 +300,64 @@ class Stage {
       ctx.drawImage(layer.img, -offX, -offY, layer.naturalW, layer.naturalH);
       ctx.restore();
 
-      // Text overlays (setVariable) render as a background-pill span on
-      // screen — match that here rather than silently omitting captions,
-      // which the download previously did entirely. Solid-fill background
-      // instead of a shadow: 14px white text with just a soft shadow was
-      // disappearing against busy photographic backgrounds (techno/urb).
+      // Text overlays (setVariable) render with role-specific treatment on
+      // screen (headline/subhead/body copy) — match that here rather than
+      // using one uniform style, and rather than silently omitting
+      // captions entirely, which the download previously did.
       const text = layer.textSpan && layer.textSpan.textContent;
       if (text) {
+        const role = layer.textEl.dataset.role; // 'headline' | 'subhead' | 'body' | undefined
         ctx.save();
         ctx.globalAlpha = layer.blend / 100;
         ctx.translate(layer.x, layer.y);
         ctx.rotate((layer.rotation * Math.PI) / 180);
-        ctx.font = `600 15px ${layer.textFont || "'IBM Plex Sans', sans-serif"}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const metrics = ctx.measureText(text);
-        const padX = 10, padY = 4;
-        const boxW = metrics.width + padX * 2;
-        const boxH = 15 + padY * 2;
-        ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.fillRect(-boxW / 2, -boxH / 2, boxW, boxH);
+
+        const fontSize = role === 'headline' ? 26 : role === 'subhead' ? 20 : role === 'body' ? 12 : 15;
+        const weight = role === 'headline' ? '700' : role === 'subhead' ? '500' : '600';
+        ctx.font = `${weight} ${fontSize}px ${layer.textFont || "'IBM Plex Sans', sans-serif"}`;
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(text, 0, 0);
+
+        if (role === 'body') {
+          // Real word-wrap — canvas fillText doesn't wrap on its own, and
+          // body copy is genuinely a multi-line paragraph in the real app,
+          // not a one-line caption.
+          const maxWidth = layer.naturalW * layer.scale * 0.85 || 300;
+          const lineHeight = fontSize * 1.5;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+          const words = text.split(/\s+/);
+          const lines = [];
+          let line = '';
+          for (const word of words) {
+            const test = line ? `${line} ${word}` : word;
+            if (ctx.measureText(test).width > maxWidth && line) {
+              lines.push(line);
+              line = word;
+            } else {
+              line = test;
+            }
+          }
+          if (line) lines.push(line);
+          const boxW = maxWidth + 20;
+          const boxH = lines.length * lineHeight + 16;
+          ctx.fillStyle = 'rgba(0,0,0,0.55)';
+          ctx.fillRect(-boxW / 2, -boxH / 2, boxW, boxH);
+          ctx.fillStyle = '#ffffff';
+          lines.forEach((l, i) => {
+            ctx.fillText(l, -boxW / 2 + 10, -boxH / 2 + 8 + i * lineHeight);
+          });
+        } else {
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const metrics = ctx.measureText(text);
+          const padX = 10, padY = 4;
+          const boxW = metrics.width + padX * 2;
+          const boxH = fontSize + padY * 2;
+          ctx.fillStyle = 'rgba(0,0,0,0.55)';
+          ctx.fillRect(-boxW / 2, -boxH / 2, boxW, boxH);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(text, 0, 0);
+        }
         ctx.restore();
       }
     }

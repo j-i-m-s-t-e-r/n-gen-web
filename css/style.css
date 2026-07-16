@@ -151,6 +151,31 @@ select:focus, input[type="text"]:focus {
   max-width: 100%;
 }
 
+/* Confirmed against the real app: sprite 47/45/43 are always Headline/
+   Subhead/Body Copy respectively, each with a distinct treatment — not
+   one uniform caption style. */
+.ngen-layer-text[data-role="headline"] span {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.ngen-layer-text[data-role="subhead"] span {
+  font-size: 20px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+.ngen-layer-text[data-role="body"] {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.ngen-layer-text[data-role="body"] span {
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  max-width: 85%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
