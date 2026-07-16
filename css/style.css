@@ -116,6 +116,7 @@ select:focus, input[type="text"]:focus {
 
 .stage {
   position: relative;
+  overflow: hidden;
   background: var(--stage-bg);
   box-shadow: 0 0 0 1px var(--line), 0 20px 60px rgba(0,0,0,0.5);
 }

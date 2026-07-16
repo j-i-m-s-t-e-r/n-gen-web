@@ -128,7 +128,7 @@ class Layer {
       this.textEl.className = 'ngen-layer-text';
       this.el.appendChild(this.textEl);
     }
-    this.textFont = randomFont();
+    this.textFont = randomFont(this.stage.currentModule);
     this.textEl.style.fontFamily = this.textFont;
     // Original modules set several named vars (txt, txt1, txt1cap, txt2,
     // txt3) meant for separate text fields inside one Flash sprite. We
@@ -227,8 +227,20 @@ class Stage {
     this.ctrY = height / 2;
     // liveArea mirrors the original's rect(l,t,r,b) around center — used
     // by doFtool/doUrb/doMod for placement relative to the visible page.
-    this.liveArea = { left: -width / 2, top: -height / 2, right: width / 2, bottom: height / 2 };
+    // Must be absolute stage coordinates (matching the original's
+    // `rect(ctrX-w2, ctrY-h2, ctrX+w2, ctrY+h2)`), not raw offsets from
+    // zero — a prior version omitted the ctrX/ctrY center offset, which
+    // pushed anything positioned via setPositionPoint(liveArea.left,
+    // liveArea.top) to roughly (-500,-350) instead of (0,0): almost
+    // entirely off-canvas.
+    this.liveArea = {
+      left: this.ctrX - width / 2,
+      top: this.ctrY - height / 2,
+      right: this.ctrX + width / 2,
+      bottom: this.ctrY + height / 2,
+    };
     this.layers = {};
+    this.currentModule = null;
     el.style.width = width + 'px';
     el.style.height = height + 'px';
   }

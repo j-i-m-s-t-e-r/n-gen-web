@@ -29,6 +29,7 @@ async function init() {
 }
 
 function switchModule() {
+  stage.currentModule = currentModule;
   stage.resetAll();
   applyManifest(stage, currentModule, manifest);
   generate();

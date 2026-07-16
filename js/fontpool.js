@@ -2,29 +2,72 @@
  * fontpool.js
  *
  * n_Gen's original text sprites picked a random font per generation from
- * an embedded library of ~244 display fonts (Exocet, Template Gothic,
- * Trixie, Eurostile, Akzidenz Grotesk, Bauhaus, HandelGothic, and so on —
- * genuinely a lot of variety, spanning grunge/techno/typewriter/futurist
- * styles). Those are named commercial typefaces from real foundries
- * (Émigré, Berthold, Linotype, Bitstream, others) — not something to
- * bundle into a public repo.
- *
- * This is the same mechanic — random expressive font per generation —
- * built on free, OFL/Apache-licensed Google Fonts chosen to span a
- * similar range of moods rather than to imitate any specific original.
+ * an embedded library of ~244 display fonts — but not one shared pool.
+ * Each module drew from its own distinct cluster:
+ *   - calnoir:  gothic/blackletter/grunge (Fraktur, DeadHistory, Exocet,
+ *               Bernhard Modern, Eviscerate)
+ *   - spcfrm:   digital/LCD/futuristic (DigitalReadOut, LCDK, OCR family,
+ *               ScreenMatrix, Space)
+ *   - ftool:    playful/novelty (JuicyFruits, Inkblob, animal-themed,
+ *               bubble/toy fonts)
+ *   - generic/modern/urb: clean bold grotesk (Helvetica, Akzidenz
+ *               Grotesk, Eurostile, TradeGothic — often in condensed or
+ *               heavy weights)
+ * All of those are named commercial typefaces, not redistributable. This
+ * keeps the per-module *character* — six different moods, not one grab
+ * bag — built entirely on free, OFL/Apache-licensed Google Fonts chosen
+ * to evoke each cluster rather than imitate any specific original font.
  */
 
-const FONT_POOL = [
-  "'Bebas Neue', sans-serif",       // bold condensed — stands in for the Eurostile/TradeGothic condensed cluster
-  "'Special Elite', monospace",      // typewriter — stands in for Prestige Elite / OCR-family
-  "'Space Mono', monospace",         // digital/technical — stands in for DigitalReadOut / OCR-B cluster
-  "'Archivo Black', sans-serif",     // heavy grotesk — stands in for the Helvetica/Akzidenz Bold cluster
-  "'Permanent Marker', cursive",     // handwritten/grunge — stands in for Undo / Eviscerate cluster
-  "'Monoton', cursive",              // display/neon — stands in for the more experimental display fonts
-  "'Righteous', sans-serif",         // rounded display — general expressive fallback
-  "'Rock Salt', cursive",            // rough handwritten — stands in for the grunge cluster
-];
+const FONT_POOLS = {
+  cal: [
+    "'UnifrakturMaguntia', cursive",   // genuine blackletter — closest free equivalent to the Fraktur cluster
+    "'UnifrakturCook', cursive",
+    "'Metal Mania', cursive",           // grunge/metal, stands in for Eviscerate/Undo
+    "'Nosifer', cursive",               // horror-grunge, stands in for DeadHistory
+    "'IM Fell English', serif",         // aged serif, stands in for Bernhard Modern
+    "'Special Elite', monospace",       // typewriter, stands in for Prestige Elite
+  ],
+  techno: [
+    "'Orbitron', sans-serif",           // futuristic display — core techno feel
+    "'Audiowide', sans-serif",
+    "'Share Tech Mono', monospace",     // stands in for OCR/DigitalReadOut cluster
+    "'VT323', monospace",               // pixel/LCD, stands in for LCDK/ScreenMatrix
+    "'Rajdhani', sans-serif",           // condensed techno
+    "'Chakra Petch', sans-serif",
+  ],
+  ftool: [
+    "'Baloo 2', cursive",               // rounded/playful, stands in for the toy/novelty cluster
+    "'Fredoka', sans-serif",
+    "'Bungee', sans-serif",             // bold playful display
+    "'Luckiest Guy', cursive",
+    "'Chewy', cursive",
+  ],
+  generic: [
+    "'Oswald', sans-serif",             // clean condensed grotesk — stands in for Eurostile/TradeGothic
+    "'Big Shoulders Display', sans-serif",
+    "'Archivo Black', sans-serif",      // heavy grotesk — stands in for Helvetica/Akzidenz Bold
+    "'Anton', sans-serif",
+  ],
+  mod: [
+    "'Big Shoulders Display', sans-serif",
+    "'Oswald', sans-serif",
+    "'Archivo Black', sans-serif",
+    "'Anton', sans-serif",
+    "'Bebas Neue', sans-serif",
+  ],
+  urb: [
+    "'Bungee', sans-serif",             // urban/industrial bold — stands in for TradeGothic Condensed
+    "'Big Shoulders Display', sans-serif",
+    "'Oswald', sans-serif",
+    "'Teko', sans-serif",
+    "'Anton', sans-serif",
+  ],
+};
 
-function randomFont() {
-  return FONT_POOL[Math.floor(Math.random() * FONT_POOL.length)];
+const DEFAULT_POOL = FONT_POOLS.generic;
+
+function randomFont(moduleKey) {
+  const pool = FONT_POOLS[moduleKey] || DEFAULT_POOL;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
