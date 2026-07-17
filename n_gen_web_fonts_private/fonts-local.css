@@ -1,0 +1,750 @@
+@font-face {
+  font-family: "2021_CARBON_ALP30";
+  src: url("techno/2021_CARBON_ALP30.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "2021_CARBON_KAT30";
+  src: url("techno/2021_CARBON_KAT30.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "2051_PLASTIC_ALP51";
+  src: url("techno/2051_PLASTIC_ALP51.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "2051_PLASTIC_KAT53";
+  src: url("techno/2051_PLASTIC_KAT53.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "2091_STEEL_ALP51";
+  src: url("techno/2091_STEEL_ALP51.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "25_Helvetica_UltraLight";
+  src: url("techno/25_Helvetica_UltraLight.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "35_Helvetica_Thin";
+  src: url("techno/35_Helvetica_Thin.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "55_Helvetica_Roman";
+  src: url("techno/55_Helvetica_Roman.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "65_Helvetica_Medium";
+  src: url("techno/65_Helvetica_Medium.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "66_Helvetica_MediumItalic";
+  src: url("techno/66_Helvetica_MediumItalic.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "AG_Old_Face_BoldOutline";
+  src: url("techno/AG_Old_Face_BoldOutline.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ASTEROIDS";
+  src: url("techno/ASTEROIDS.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "AddWASP";
+  src: url("techno/AddWASP.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Base9";
+  src: url("techno/Base9.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "BubbledotICGCoarseNegative";
+  src: url("techno/BubbledotICGCoarseNegative.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bug_Regular";
+  src: url("techno/Bug_Regular.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Chibacity_Outline";
+  src: url("techno/Chibacity_Outline.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "CitizenLight";
+  src: url("techno/CitizenLight.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Code_3of9";
+  src: url("techno/Code_3of9.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "DicotMedium";
+  src: url("techno/DicotMedium.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "DigitalReadOut";
+  src: url("techno/DigitalReadOut.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Eurostile_Condensed";
+  src: url("techno/Eurostile_Condensed.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "GASBOOK2_K0307";
+  src: url("techno/GASBOOK2_K0307.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HandelGothic_BT";
+  src: url("techno/HandelGothic_BT.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveticaNeue_MediumExt";
+  src: url("techno/HelveticaNeue_MediumExt.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveticaNeue_UltraLigExt";
+  src: url("techno/HelveticaNeue_UltraLigExt.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ITACHOKO_ALPHABET";
+  src: url("techno/ITACHOKO_ALPHABET.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Isonorm3098_Italic";
+  src: url("techno/Isonorm3098_Italic.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "LCDK";
+  src: url("techno/LCDK.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "MinitelLight";
+  src: url("techno/MinitelLight.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "OCRA";
+  src: url("techno/OCRA.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Oracle";
+  src: url("techno/Oracle.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roundstyle_Regular";
+  src: url("techno/Roundstyle_Regular.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "RussellSquare_Oblique";
+  src: url("techno/RussellSquare_Oblique.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ScreenMatrix_Grid";
+  src: url("techno/ScreenMatrix_Grid.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "TGR_3_0_E_Italic";
+  src: url("techno/TGR_3_0_E_Italic.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "TGR_3_0_J_Italic";
+  src: url("techno/TGR_3_0_J_Italic.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "flourescent";
+  src: url("techno/flourescent.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "helvetica";
+  src: url("techno/helvetica.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ocrb";
+  src: url("techno/ocrb.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "space";
+  src: url("techno/space.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "55_Helvetica_Roman";
+  src: url("cal/55_Helvetica_Roman.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "AmoebiaRain";
+  src: url("cal/AmoebiaRain.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "AmplifierLight";
+  src: url("cal/AmplifierLight.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ArbitraryBold";
+  src: url("cal/ArbitraryBold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ArbitraryRegular";
+  src: url("cal/ArbitraryRegular.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Base12Serif";
+  src: url("cal/Base12Serif.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bernhard_Modern_Roman";
+  src: url("cal/Bernhard_Modern_Roman.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "BlurLight";
+  src: url("cal/BlurLight.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "DeadHistoryRom";
+  src: url("cal/DeadHistoryRom.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Device";
+  src: url("cal/Device.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "EngrvrsOldEng_BT";
+  src: url("cal/EngrvrsOldEng_BT.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "EngrvrsOldEng_Bd_BT";
+  src: url("cal/EngrvrsOldEng_Bd_BT.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Entropy";
+  src: url("cal/Entropy.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "EscalidoGothico";
+  src: url("cal/EscalidoGothico.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "EscalidoStreak";
+  src: url("cal/EscalidoStreak.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Eviscerate";
+  src: url("cal/Eviscerate.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ExocetLight";
+  src: url("cal/ExocetLight.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fette_Fraktur";
+  src: url("cal/Fette_Fraktur.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraktur_BT";
+  src: url("cal/Fraktur_BT.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "GothicBlond_Husky";
+  src: url("cal/GothicBlond_Husky.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "OCRB";
+  src: url("cal/OCRB.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Oracle";
+  src: url("cal/Oracle.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Prestige_Elite";
+  src: url("cal/Prestige_Elite.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "TemplateGothicBold";
+  src: url("cal/TemplateGothicBold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Trixie_Cameo";
+  src: url("cal/Trixie_Cameo.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Trixie_Text";
+  src: url("cal/Trixie_Text.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Undo";
+  src: url("cal/Undo.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Undo36";
+  src: url("cal/Undo36.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "esso";
+  src: url("cal/esso.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "maldita";
+  src: url("cal/maldita.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "tablhoide";
+  src: url("cal/tablhoide.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "uncletypewriter";
+  src: url("cal/uncletypewriter.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "AbileneFLF";
+  src: url("ftool/AbileneFLF.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alphabits";
+  src: url("ftool/Alphabits.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Arnold_Boecklin";
+  src: url("ftool/Arnold_Boecklin.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "BellBottom";
+  src: url("ftool/BellBottom.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Block_Out";
+  src: url("ftool/Block_Out.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "CandiDRo1";
+  src: url("ftool/CandiDRo1.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "CandiDSh1";
+  src: url("ftool/CandiDSh1.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Cubicle";
+  src: url("ftool/Cubicle.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Exotica_Edelweiss";
+  src: url("ftool/Exotica_Edelweiss.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Exotica_Jasumin";
+  src: url("ftool/Exotica_Jasumin.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "FUNK_Bold";
+  src: url("ftool/FUNK_Bold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Framework_Regular";
+  src: url("ftool/Framework_Regular.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Giddy_Alphabet";
+  src: url("ftool/Giddy_Alphabet.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Hachipochi_EightAl";
+  src: url("ftool/Hachipochi_EightAl.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Heads_of_the_Household";
+  src: url("ftool/Heads_of_the_Household.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inkblob";
+  src: url("ftool/Inkblob.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Ironwood";
+  src: url("ftool/Ironwood.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "JUICYFRUITS2_0E_Regular";
+  src: url("ftool/JUICYFRUITS2_0E_Regular.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "JUICYFRUITS_2_0J_Regular";
+  src: url("ftool/JUICYFRUITS_2_0J_Regular.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "KISEKAE";
+  src: url("ftool/KISEKAE.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "LPLset";
+  src: url("ftool/LPLset.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "MatrixScriptBold";
+  src: url("ftool/MatrixScriptBold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "MatrixScriptRegular";
+  src: url("ftool/MatrixScriptRegular.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "MoonbaseAlpha";
+  src: url("ftool/MoonbaseAlpha.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "MotterFeminaSH";
+  src: url("ftool/MotterFeminaSH.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ONIKU_KATA";
+  src: url("ftool/ONIKU_KATA.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Orbit_B_BT";
+  src: url("ftool/Orbit_B_BT.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "PetSounds";
+  src: url("ftool/PetSounds.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pixie_Five";
+  src: url("ftool/Pixie_Five.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "PreludeScriptFLF_Bold";
+  src: url("ftool/PreludeScriptFLF_Bold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Puffy_Dreamland";
+  src: url("ftool/Puffy_Dreamland.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ROTORcap_Symbols";
+  src: url("ftool/ROTORcap_Symbols.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ROTORkeff";
+  src: url("ftool/ROTORkeff.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rope_MF";
+  src: url("ftool/Rope_MF.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SuburbanBold";
+  src: url("ftool/SuburbanBold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SuburbanLight";
+  src: url("ftool/SuburbanLight.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "TOY_3D";
+  src: url("ftool/TOY_3D.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Thornforms";
+  src: url("ftool/Thornforms.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Thunderbird";
+  src: url("ftool/Thunderbird.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "animals";
+  src: url("ftool/animals.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "caramel_font";
+  src: url("ftool/caramel_font.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "mog_mix";
+  src: url("ftool/mog_mix.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "osyaberi_font";
+  src: url("ftool/osyaberi_font.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "45_Helvetica_Light";
+  src: url("mod/45_Helvetica_Light.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "55_Helvetica_Roman";
+  src: url("mod/55_Helvetica_Roman.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "AachenBold";
+  src: url("mod/AachenBold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Akzidenz_Grotesk_BE_Bold";
+  src: url("mod/Akzidenz_Grotesk_BE_Bold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Akzidenz_Grotesk_BE_BoldCn";
+  src: url("mod/Akzidenz_Grotesk_BE_BoldCn.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Akzidenz_Grotesk_BE_Light";
+  src: url("mod/Akzidenz_Grotesk_BE_Light.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Akzidenz_Grotesk_BE_XBdCn";
+  src: url("mod/Akzidenz_Grotesk_BE_XBdCn.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "B_Aachen_Bold";
+  src: url("mod/B_Aachen_Bold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "B_Helvetica_Bold";
+  src: url("mod/B_Helvetica_Bold.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "B_Lubalin_Graph_Demi";
+  src: url("mod/B_Lubalin_Graph_Demi.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bauhaus_Heavy";
+  src: url("mod/Bauhaus_Heavy.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bauhaus_Light";
+  src: url("mod/Bauhaus_Light.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "C_Univers_57_Condensed";
+  src: url("mod/C_Univers_57_Condensed.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Eurostile_BoldExtendedTwo";
+  src: url("mod/Eurostile_BoldExtendedTwo.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "GridLock";
+  src: url("mod/GridLock.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveExtCompressed";
+  src: url("mod/HelveExtCompressed.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveticaInserat_Roman";
+  src: url("mod/HelveticaInserat_Roman.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "AG_Old_Face_BoldOutline";
+  src: url("urb/AG_Old_Face_BoldOutline.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Akzidenz_Grotesk_BE_Md";
+  src: url("urb/Akzidenz_Grotesk_BE_Md.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "DINMittelschrift";
+  src: url("urb/DINMittelschrift.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveUltCompressed";
+  src: url("urb/HelveUltCompressed.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveticaNeue_LightExt";
+  src: url("urb/HelveticaNeue_LightExt.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveticaNeue_ThinExt";
+  src: url("urb/HelveticaNeue_ThinExt.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "TradeGothic_BoldCondTwenty";
+  src: url("urb/TradeGothic_BoldCondTwenty.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "35_Helvetica_Thin";
+  src: url("generic/35_Helvetica_Thin.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "45_Helvetica_Light";
+  src: url("generic/45_Helvetica_Light.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "65_Helvetica_Medium";
+  src: url("generic/65_Helvetica_Medium.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Akzidenz_Grotesk_BE";
+  src: url("generic/Akzidenz_Grotesk_BE.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "DINEngschrift";
+  src: url("generic/DINEngschrift.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Eurostile_ExtendedTwo";
+  src: url("generic/Eurostile_ExtendedTwo.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveticaNeue_LightExt";
+  src: url("generic/HelveticaNeue_LightExt.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "OCRB";
+  src: url("generic/OCRB.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "TradeGothic_BoldCondTwenty";
+  src: url("generic/TradeGothic_BoldCondTwenty.ttf");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Univers_55";
+  src: url("generic/Univers_55.ttf");
+  font-display: swap;
+}
