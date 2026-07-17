@@ -37,12 +37,14 @@ const MODULES = {
       const genPalette = [rgb(242, 250, 252), rgb(219, 235, 240), rgb(229, 242, 206)];
 
       const l47 = stage.layer(47);
+      l47.knockoutBackground = true; // JPEXS flattened these transparent sprites onto flat grey
       l47.setPosition(0, 0, 0, 0);
       l47.setColor(genPalette);
       l47.setOnOff(1);
       l47.setFlashFrame();
 
       const l45 = stage.layer(45);
+      l45.knockoutBackground = true;
       l45.setPosition(-100, -10, 140, 10);
       l45.setBlend(30, 70);
       l45.setColor(genPalette);
@@ -50,6 +52,7 @@ const MODULES = {
       l45.setFlashFrame();
 
       const l43 = stage.layer(43);
+      l43.knockoutBackground = true;
       l43.setPosition(-100, -200, 100, 100);
       l43.setBlend(40, 70);
       l43.setScale(60, 90);
@@ -225,6 +228,7 @@ const MODULES = {
       stage.layer(11).setOnOff(1);
       const l31 = stage.layer(31);
       l31.registration = 'topleft'; // full-canvas cover image, not a centered sprite
+      l31.coverStage = true; // size as fraction of stage, not of the asset file's pixels
       // Never colored in the original either — see generic module's note on
       // the measured colorfulness gap. mod has no existing palette to reuse
       // (its background is always plain white), so this is an invented
@@ -237,12 +241,21 @@ const MODULES = {
       l31.setOnOff(1);
       l31.setFlashFrame();
 
-      // scale multipliers per format, straight from doModscript's case block
-      const formatScale = {
-        bcard: 0.3816, bcardL: 0.296, pcard: 0.7632, pcardL: 0.589,
-        cd: 0.9576, record: 0.65, page: 1, pageL: 0.775, web: 1,
-      }[format] ?? 1;
-      l31.scale = formatScale;
+      // Per-format sizing, straight from doModscript's case block. Note the
+      // original scales width and height by DIFFERENT factors for several
+      // formats (bcard: 0.3816 x 0.515, cd: 0.9576 x 0.7357, web: 1 x 0.718)
+      // — these map to coverScaleX/Y against the stage, mirroring the
+      // original's `sprite(31).width = member.width * factor` where the
+      // member was authored at full live-area size.
+      const formatScales = {
+        bcard: [0.3816, 0.515], bcardL: [0.296, 0.296],
+        pcard: [0.7632, 0.8883], pcardL: [0.589, 0.589],
+        cd: [0.9576, 0.7357], record: [0.65, 0.65],
+        page: [1, 1], pageL: [0.775, 0.775], web: [1, 0.718],
+      };
+      const [fsx, fsy] = formatScales[format] ?? [1, 1];
+      l31.coverScaleX = fsx;
+      l31.coverScaleY = fsy;
       l31.setPositionPoint(theLeft, theTop);
     },
     text(stage, txt1, txt2, txt3) {
@@ -416,6 +429,7 @@ const MODULES = {
       // is the meaningful default for a web port (see mod.run note above)
       const l31 = stage.layer(31);
       l31.registration = 'topleft'; // full-canvas cover image, same as mod's sprite 31
+      l31.coverStage = true; // size as fraction of stage, not of the asset file's pixels
       const l47 = stage.layer(47);
       l31.setPositionPoint(theLeft + pick(Xoffset.slice(0, 2)), theTop + pick(Yoffset.slice(0, 5)));
       l47.setPositionPoint(theLeft + pick(Xoffset.slice(0, 3)), theTop + pick(Yoffset.slice(0, 5)));

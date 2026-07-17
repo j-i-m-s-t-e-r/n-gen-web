@@ -180,13 +180,6 @@ class Layer {
       return;
     }
     if (this._pendingTint === 'none') return;
-    // Default path: 'multiply'. Real exported frames turned out to be fully
-    // opaque full-canvas renders (confirmed against actual n_Gen assets —
-    // alpha fill ratio is 1.0 across every sampled frame), not alpha-cutout
-    // silhouettes. Multiply-blend colorizes while preserving the texture's
-    // own light/dark detail; source-atop alpha-matting (the original guess
-    // here, before real assets were available) would have just flattened
-    // every frame into a solid color swatch.
     await new Promise((resolve) => {
       if (this.img.complete) resolve();
       else this.img.onload = resolve;
@@ -197,19 +190,66 @@ class Layer {
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(this.img, 0, 0);
+
+    // knockoutBackground: JPEXS flattens sprites that were originally
+    // transparent onto the Flash stage color, so a sprite that's really a
+    // small text element floating on nothing arrives as a full-frame flat
+    // grey rectangle with a tiny content sliver (measured content
+    // fractions of 0.1-1.2% on ngeneric's blocks). For layers flagged
+    // this way, sample the corner color and make near-matching pixels
+    // transparent before tinting.
+    if (this.knockoutBackground) {
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const d = imgData.data;
+      const bgR = d[0], bgG = d[1], bgB = d[2];
+      const tol = 10;
+      for (let p = 0; p < d.length; p += 4) {
+        if (Math.abs(d[p] - bgR) <= tol && Math.abs(d[p+1] - bgG) <= tol && Math.abs(d[p+2] - bgB) <= tol) {
+          d[p+3] = 0;
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    // Snapshot the current alpha state BEFORE tinting — for knocked-out
+    // layers this preserves the transparency we just created; redrawing
+    // this.img directly here instead would restore full opacity and
+    // silently undo the knockout.
+    const maskCanvas = document.createElement('canvas');
+    maskCanvas.width = w; maskCanvas.height = h;
+    maskCanvas.getContext('2d').drawImage(canvas, 0, 0);
+
+    // Default tint path: 'multiply'. Real exported frames are fully opaque
+    // full-canvas renders (confirmed against actual n_Gen assets), so
+    // multiply-blend colorizes while preserving the texture's own
+    // light/dark detail.
     ctx.globalCompositeOperation = 'multiply';
     ctx.fillStyle = rgbToCss(this.color);
     ctx.fillRect(0, 0, w, h);
     // multiply darkens everything including near-white ground — restore
-    // original alpha shape so we're not compounding opacity with .blend
+    // the pre-tint alpha shape so we're not compounding opacity with .blend
     ctx.globalCompositeOperation = 'destination-in';
-    ctx.drawImage(this.img, 0, 0);
+    ctx.drawImage(maskCanvas, 0, 0);
     this.img.src = canvas.toDataURL();
   }
 
   _render() {
     this.el.style.display = this.visible ? 'block' : 'none';
-    const w = this.naturalW || 0, h = this.naturalH || 0;
+    let w = this.naturalW || 0, h = this.naturalH || 0;
+    // coverStage: Director sized these sprites via `sprite(31).width =
+    // member.width * factor` where the member was authored at exactly
+    // live-area size (566x734) — i.e. "fraction of the full canvas", not
+    // "fraction of whatever pixel size the exported asset file happens to
+    // be". Our exported/cropped assets have arbitrary dimensions, so
+    // treating their file size as authoritative confined mod/urb's hero
+    // image to a top-left fraction of the stage (measured: x 0-356 of
+    // 850 across every generated frame before this fix).
+    if (this.coverStage && w && h) {
+      const targetW = this.stage.width * (this.coverScaleX ?? 1);
+      const targetH = this.stage.height * (this.coverScaleY ?? 1);
+      w = targetW; h = targetH;
+    }
+    this._renderW = w; this._renderH = h;
     const offX = this.registration === 'topleft' ? 0 : w / 2;
     const offY = this.registration === 'topleft' ? 0 : h / 2;
     this.el.style.left = (this.x - offX) + 'px';
@@ -231,6 +271,12 @@ class Layer {
     this.rotation = 0; this.skew = 0;
     this.flipH = 1; this.flipV = 1;
     this.blend = 100;
+    this.scale = 1;
+    this.registration = 'center';
+    this.coverStage = false;
+    this.coverScaleX = undefined;
+    this.coverScaleY = undefined;
+    this.knockoutBackground = false;
     this.vars = {};
     if (this.textSpan) this.textSpan.textContent = '';
     this._render();
@@ -289,15 +335,17 @@ class Stage {
 
     for (const layer of Object.values(this.layers)) {
       if (!layer.visible || !layer.naturalW) continue;
-      const offX = layer.registration === 'topleft' ? 0 : layer.naturalW / 2;
-      const offY = layer.registration === 'topleft' ? 0 : layer.naturalH / 2;
+      const drawW = layer._renderW || layer.naturalW;
+      const drawH = layer._renderH || layer.naturalH;
+      const offX = layer.registration === 'topleft' ? 0 : drawW / 2;
+      const offY = layer.registration === 'topleft' ? 0 : drawH / 2;
       ctx.save();
       ctx.globalAlpha = layer.blend / 100;
       ctx.translate(layer.x, layer.y);
       ctx.rotate((layer.rotation * Math.PI) / 180);
       ctx.transform(1, 0, Math.tan((layer.skew * Math.PI) / 180), 1, 0, 0);
       ctx.scale(layer.scale * layer.flipH, layer.scale * layer.flipV);
-      ctx.drawImage(layer.img, -offX, -offY, layer.naturalW, layer.naturalH);
+      ctx.drawImage(layer.img, -offX, -offY, drawW, drawH);
       ctx.restore();
 
       // Text overlays (setVariable) render with role-specific treatment on

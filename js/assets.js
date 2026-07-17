@@ -53,7 +53,13 @@ function applyManifest(stage, moduleKey, manifest) {
   const spec = MODULES[moduleKey];
   spec.layerIds.forEach((id) => {
     if (id === 11) {
-      stage.layer(11).setFrames([backgroundFrame(stage)]);
+      const bg = stage.layer(11);
+      bg.setFrames([backgroundFrame(stage)]);
+      // Position at stage center: layers default to x=0,y=0 (the canvas
+      // ORIGIN) with center registration, which parked the oversized
+      // background's center on the top-left corner — leaving the bottom
+      // and right of the canvas black wherever content was sparse.
+      bg.setPositionPoint(stage.ctrX, stage.ctrY);
       return;
     }
     const frames = manifest?.[moduleKey]?.[id];
