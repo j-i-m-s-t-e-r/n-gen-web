@@ -233,22 +233,38 @@ class Layer {
     maskCanvas.width = w; maskCanvas.height = h;
     maskCanvas.getContext('2d').drawImage(canvas, 0, 0);
 
-    // Default tint path: 'multiply'. Real exported frames are fully opaque
-    // full-canvas renders (confirmed against actual n_Gen assets), so
-    // multiply-blend colorizes while preserving the texture's own
-    // light/dark detail. tintStrength (0-1, default 1) softens this — full
-    // strength on a large "hero image" sprite flattens it into a single
-    // flat color wash, reading as a color swatch rather than an image with
-    // its own tonal variation. Reduced strength on layer 31 (mod/urb) lets
-    // more of the original grayscale tonal range survive the tint.
+    // Default tint path: multiply-style colorization, luminance-aware.
+    // Flat multiply blend darkens EVERY pixel proportionally to how dark
+    // the tint color is — including near-white background/negative-space
+    // pixels, no matter how low tintStrength is set (confirmed by direct
+    // math: white tinted with a dark color at strength 0.4 becomes a
+    // medium grey, not white). That was the actual mechanism behind a
+    // measured real-vs-port gap on mod: the real app shows a predominantly
+    // white background on roughly half its generates, the port showed it
+    // on none. Near-white pixels now get little to no tint; only pixels
+    // that already have real tonal content take the color.
     const strength = this.tintStrength ?? 1;
-    ctx.globalAlpha = strength;
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.fillStyle = rgbToCss(this.color);
-    ctx.fillRect(0, 0, w, h);
-    ctx.globalAlpha = 1;
-    // multiply darkens everything including near-white ground — restore
-    // the pre-tint alpha shape so we're not compounding opacity with .blend
+    const imgData2 = ctx.getImageData(0, 0, w, h);
+    const d2 = imgData2.data;
+    const tint = this.color;
+    const WHITE_PROTECT_START = 235; // luminance above this: increasingly protected from tinting
+    const WHITE_PROTECT_END = 255;
+    for (let p = 0; p < d2.length; p += 4) {
+      const r = d2[p], g = d2[p + 1], b = d2[p + 2];
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      let localStrength = strength;
+      if (lum >= WHITE_PROTECT_START) {
+        const t = (lum - WHITE_PROTECT_START) / (WHITE_PROTECT_END - WHITE_PROTECT_START);
+        localStrength = strength * (1 - t); // fades to 0 as luminance approaches white
+      }
+      d2[p] = r * (1 - localStrength) + (r * tint.r / 255) * localStrength;
+      d2[p + 1] = g * (1 - localStrength) + (g * tint.g / 255) * localStrength;
+      d2[p + 2] = b * (1 - localStrength) + (b * tint.b / 255) * localStrength;
+    }
+    ctx.putImageData(imgData2, 0, 0);
+    // restore the pre-tint alpha shape (knockout, if any) — tinting above
+    // doesn't touch alpha, but putImageData writes a full frame, so redo
+    // the mask to be safe against any accidental alpha drift.
     ctx.globalCompositeOperation = 'destination-in';
     ctx.drawImage(maskCanvas, 0, 0);
     this.img.src = canvas.toDataURL();
@@ -308,6 +324,12 @@ class Layer {
 class Stage {
   constructor(el, { width = 1024, height = 768 } = {}) {
     this.el = el;
+    // Stage gets recreated on format change (rebuildStage in app.js),
+    // reusing the same DOM element — without this, the previous format's
+    // layer divs stayed orphaned in the DOM, potentially still visible on
+    // top of whatever the new format renders, making format switches look
+    // like they'd done nothing at all.
+    while (this.el.firstChild) this.el.removeChild(this.el.firstChild);
     this.width = width;
     this.height = height;
     this.ctrX = width / 2;
@@ -388,8 +410,18 @@ class Stage {
         const boxCy = layer.registration === 'topleft' ? layer.y + (layer._renderH || layer.naturalH) / 2 : layer.y;
         ctx.translate(boxCx, boxCy);
         ctx.rotate((layer.rotation * Math.PI) / 180);
+        // Text scales with the layer, same as the image does — in the
+        // original, text was embedded inside the scaled Flash symbol, so
+        // scaling the sprite scaled its text too. A prior version used a
+        // fixed pixel font size regardless of layer.scale, so text never
+        // varied in size at all across generates. coverStage layers
+        // (mod/urb's hero sprite) size via targetW/H instead — their own
+        // .scale stays ~1, so this is a no-op there, which is correct.
+        if (!layer.coverStage) {
+          ctx.scale(layer.scale, layer.scale);
+        }
 
-        const fontSize = role === 'headline' ? 26 : role === 'subhead' ? 20 : role === 'body' ? 12 : role === 'combined' ? 16 : 15;
+        const fontSize = role === 'headline' ? 34 : role === 'subhead' ? 26 : role === 'body' ? 18 : role === 'combined' ? 22 : 18;
         const weight = role === 'headline' ? '700' : role === 'subhead' ? '500' : role === 'combined' ? '600' : '600';
         ctx.font = `${weight} ${fontSize}px ${layer.textFont || "'IBM Plex Sans', sans-serif"}`;
         ctx.fillStyle = '#ffffff';

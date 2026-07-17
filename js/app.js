@@ -20,6 +20,7 @@ const FORMAT_DIMENSIONS = {
 
 async function init() {
   manifest = await loadManifest();
+  await loadPrivateFonts();
 
   const select = document.getElementById('module-select');
   Object.entries(MODULES).forEach(([key, mod]) => {
@@ -54,7 +55,14 @@ async function init() {
 
 function rebuildStage() {
   const dims = FORMAT_DIMENSIONS[currentFormat];
-  stage = new Stage(document.getElementById('stage'), dims);
+  const el = document.getElementById('stage');
+  // Old layer divs from the previous Stage instance were left behind here —
+  // a new Stage starts with an empty layer registry but doesn't know to
+  // remove DOM nodes a *previous* instance created, so switching format
+  // left the old composition sitting underneath the new (correctly
+  // resized) container, making it look like nothing had changed.
+  el.innerHTML = '';
+  stage = new Stage(el, dims);
 }
 
 function switchModule() {

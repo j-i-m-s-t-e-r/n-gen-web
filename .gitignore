@@ -1,0 +1,5 @@
+# Real extracted fonts — private use only, per explicit instruction not to
+# publish these. This entry exists as a safety net even though you've said
+# this repo stays private — keeps a future "oops, made it public" from also
+# leaking someone else's commercial typefaces.
+assets/fonts-private/

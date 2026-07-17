@@ -244,6 +244,7 @@ const MODULES = {
       l31.registration = 'topleft'; // full-canvas cover image, not a centered sprite
       l31.coverStage = true; // size as fraction of stage, not of the asset file's pixels
       l31.tintStrength = 0.4; // full-strength tint flattened this into a color wash instead of an image
+      l31.knockoutBackground = true; // real app shows this at only 36-43% coverage even in high-content frames — let the background show through
       // Never colored in the original either — see generic module's note on
       // the measured colorfulness gap. mod has no existing palette to reuse
       // (its background is always plain white), so this is an invented
@@ -450,6 +451,7 @@ const MODULES = {
       l31.registration = 'topleft'; // full-canvas cover image, same as mod's sprite 31
       l31.coverStage = true; // size as fraction of stage, not of the asset file's pixels
       l31.tintStrength = 0.4; // same reasoning as mod's sprite 31
+      l31.knockoutBackground = true; // same reasoning as mod's sprite 31
       const l47 = stage.layer(47);
       l31.setPositionPoint(theLeft + pick(Xoffset.slice(0, 2)), theTop + pick(Yoffset.slice(0, 5)));
       l47.setPositionPoint(theLeft + pick(Xoffset.slice(0, 3)), theTop + pick(Yoffset.slice(0, 5)));

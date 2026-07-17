@@ -15,7 +15,8 @@ assets/manifest.json, matching the folder convention:
         ...
       techno/  mod/  ftool/  urb/   (module keys — see js/modules.js)
 
-Each frame defaults to tint "alpha" (raster/alpha-matte recoloring).
+Each frame defaults to tint "multiply" (real assets are opaque textures,
+# not alpha-cutout icons; multiply-blend colorizes while preserving detail).
 If a file's name contains "currentColor" (e.g. figA_currentColor.svg),
 it's tagged tint "currentColor" instead — use that for SVGs you've
 authored or edited to use fill="currentColor" so recoloring is exact
@@ -55,7 +56,7 @@ def build():
             for f in sorted(sprite_dir.iterdir()):
                 if f.suffix.lower() not in VALID_EXT:
                     continue
-                tint = "currentColor" if "currentColor" in f.name else "alpha"
+                tint = "currentColor" if "currentColor" in f.name else "multiply"
                 frames.append({
                     "src": f"assets/{module_key}/{sprite_dir.name}/{f.name}",
                     "tint": tint,

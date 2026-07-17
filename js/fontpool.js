@@ -67,7 +67,33 @@ const FONT_POOLS = {
 
 const DEFAULT_POOL = FONT_POOLS.generic;
 
+// Real extracted fonts (assets/fonts-private/, gitignored — private use
+// only, not for the public deploy). Loaded async at startup; randomFont()
+// falls back to the curated Google Fonts pool above until this resolves,
+// and permanently falls back if fonts-private/ isn't present at all (e.g.
+// on a fresh clone without it) — every font-family string always ends
+// with a fallback face, so a missing woff2 just degrades gracefully.
+let PRIVATE_FONT_POOLS = null;
+
+async function loadPrivateFonts() {
+  try {
+    const res = await fetch('assets/fonts-private/manifest.json', { cache: 'no-store' });
+    if (!res.ok) return;
+    PRIVATE_FONT_POOLS = await res.json();
+  } catch {
+    // fonts-private/ not present — stay on the Google Fonts pool, silently
+  }
+}
+
 function randomFont(moduleKey) {
+  const privatePool = PRIVATE_FONT_POOLS && PRIVATE_FONT_POOLS[moduleKey];
+  const fallback = (FONT_POOLS[moduleKey] || DEFAULT_POOL)[0];
+  if (privatePool && privatePool.length) {
+    const realFamily = privatePool[Math.floor(Math.random() * privatePool.length)];
+    // Real font first, curated substitute second, generic last — a missing
+    // or failed woff2 degrades to something reasonable instead of tofu.
+    return `'${realFamily}', ${fallback}`;
+  }
   const pool = FONT_POOLS[moduleKey] || DEFAULT_POOL;
   return pool[Math.floor(Math.random() * pool.length)];
 }
