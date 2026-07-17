@@ -54,6 +54,13 @@ function applyManifest(stage, moduleKey, manifest) {
   spec.layerIds.forEach((id) => {
     if (id === 11) {
       const bg = stage.layer(11);
+      // Must be set before setFrames — its synthetic base is pure white
+      // (luminance 255) specifically so it can take full tint color; with
+      // white-protect on (the default, right for real photos with actual
+      // white highlights to preserve) it would get zero tint at exactly
+      // the pixel value it always starts at, leaving every module's
+      // background permanently white regardless of chosen color.
+      bg.whiteProtect = false;
       bg.setFrames([backgroundFrame(stage)]);
       // Position at stage center: layers default to x=0,y=0 (the canvas
       // ORIGIN) with center registration, which parked the oversized

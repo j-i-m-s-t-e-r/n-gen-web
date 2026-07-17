@@ -87,6 +87,12 @@ class Layer {
     // is the standard default foreColor for a freshly placed sprite.
     this.color = rgb(255, 255, 255);
     this.naturalW = 0; this.naturalH = 0;
+    // White-protect (see _maybeTint) defaults on — right for real
+    // photographic/texture assets with natural white highlights. Wrong
+    // for a synthetic solid-white base specifically meant to take full
+    // color (the background layer) — that gets this set false explicitly
+    // in assets.js, right after its frame is assigned.
+    this.whiteProtect = true;
 
     stage.el.appendChild(this.el);
   }
@@ -160,6 +166,15 @@ class Layer {
     if (role) this.textEl.dataset.role = role;
     this.textFont = randomFont(this.stage.currentModule);
     this.textSpan.style.fontFamily = this.textFont;
+    if (this.coverStage) {
+      // CSS's percentage-based max-width is relative to THIS layer's own
+      // box — for coverStage layers that box is the oversized pre-crop
+      // image (e.g. ~1467px for mod's hero sprite), not the ~850px
+      // that's actually visible. Set an explicit pixel max-width instead
+      // so text doesn't wrap wider than what's on screen and get clipped.
+      const visibleW = this.stage.width * (this.coverScaleX ?? 1);
+      this.textSpan.style.maxWidth = (visibleW * 0.7) + 'px';
+    }
     // Original modules set several named vars (txt, txt1, txt1cap, txt2,
     // txt3) meant for separate text fields inside one Flash sprite. We
     // don't know your exported layout for these yet, so by default we
@@ -251,11 +266,13 @@ class Layer {
     const WHITE_PROTECT_END = 255;
     for (let p = 0; p < d2.length; p += 4) {
       const r = d2[p], g = d2[p + 1], b = d2[p + 2];
-      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
       let localStrength = strength;
-      if (lum >= WHITE_PROTECT_START) {
-        const t = (lum - WHITE_PROTECT_START) / (WHITE_PROTECT_END - WHITE_PROTECT_START);
-        localStrength = strength * (1 - t); // fades to 0 as luminance approaches white
+      if (this.whiteProtect) {
+        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        if (lum >= WHITE_PROTECT_START) {
+          const t = (lum - WHITE_PROTECT_START) / (WHITE_PROTECT_END - WHITE_PROTECT_START);
+          localStrength = strength * (1 - t); // fades to 0 as luminance approaches white
+        }
       }
       d2[p] = r * (1 - localStrength) + (r * tint.r / 255) * localStrength;
       d2[p + 1] = g * (1 - localStrength) + (g * tint.g / 255) * localStrength;
@@ -281,16 +298,60 @@ class Layer {
     // treating their file size as authoritative confined mod/urb's hero
     // image to a top-left fraction of the stage (measured: x 0-356 of
     // 850 across every generated frame before this fix).
+    let coverOffsetX = 0, coverOffsetY = 0;
     if (this.coverStage && w && h) {
       const targetW = this.stage.width * (this.coverScaleX ?? 1);
       const targetH = this.stage.height * (this.coverScaleY ?? 1);
-      w = targetW; h = targetH;
+      // Cover-fit: scale UNIFORMLY so both dimensions are fully covered,
+      // then let .stage's existing overflow:hidden crop the excess. A
+      // prior version set width/height independently to the target box,
+      // which stretched the image non-uniformly whenever its native
+      // aspect ratio didn't match the target — squishing a 900x675 image
+      // (ratio 1.33) into an 850x1100 box (ratio 0.77) meant ~1.6x
+      // vertical stretch with no matching horizontal compensation. That's
+      // exactly the "burnt out"/noisy look reported: JPEG compression
+      // artifacts are always most visible in flat/gradient regions (sky),
+      // and non-uniform stretching drags those artifacts out further in
+      // one axis than the source encoding ever accounted for.
+      const nativeRatio = w / h;
+      const targetRatio = targetW / targetH;
+      if (nativeRatio > targetRatio) {
+        h = targetH;
+        w = targetH * nativeRatio;
+      } else {
+        w = targetW;
+        h = targetW / nativeRatio;
+      }
+      // Center the crop rather than always keeping the top-left corner —
+      // anchoring at top-left meant the entire excess got cropped from
+      // the right/bottom, which for a wide image could cut away most of
+      // its actual content instead of showing a representative slice.
+      coverOffsetX = (w - targetW) / 2;
+      coverOffsetY = (h - targetH) / 2;
     }
+    this._coverOffsetX = coverOffsetX;
+    this._coverOffsetY = coverOffsetY;
     this._renderW = w; this._renderH = h;
     const offX = this.registration === 'topleft' ? 0 : w / 2;
     const offY = this.registration === 'topleft' ? 0 : h / 2;
-    this.el.style.left = (this.x - offX) + 'px';
-    this.el.style.top = (this.y - offY) + 'px';
+    // Visible box center, for text centering (exportPNG reads this
+    // directly rather than reconstructing it from offsets/registration
+    // mode) — for coverStage layers this is the CROPPED target box's
+    // center, not the oversized pre-crop image's center.
+    if (this.coverStage) {
+      const targetW = this.stage.width * (this.coverScaleX ?? 1);
+      const targetH = this.stage.height * (this.coverScaleY ?? 1);
+      this._boxCenterX = this.x + targetW / 2;
+      this._boxCenterY = this.y + targetH / 2;
+    } else if (this.registration === 'topleft') {
+      this._boxCenterX = this.x + w / 2;
+      this._boxCenterY = this.y + h / 2;
+    } else {
+      this._boxCenterX = this.x;
+      this._boxCenterY = this.y;
+    }
+    this.el.style.left = (this.x - offX - coverOffsetX) + 'px';
+    this.el.style.top = (this.y - offY - coverOffsetY) + 'px';
     this.el.style.width = w + 'px';
     this.el.style.height = h + 'px';
     this.el.style.transformOrigin = this.registration === 'topleft' ? '0 0' : '50% 50%';
@@ -381,8 +442,8 @@ class Stage {
       if (!layer.visible || !layer.naturalW) continue;
       const drawW = layer._renderW || layer.naturalW;
       const drawH = layer._renderH || layer.naturalH;
-      const offX = layer.registration === 'topleft' ? 0 : drawW / 2;
-      const offY = layer.registration === 'topleft' ? 0 : drawH / 2;
+      const offX = (layer.registration === 'topleft' ? 0 : drawW / 2) + (layer._coverOffsetX || 0);
+      const offY = (layer.registration === 'topleft' ? 0 : drawH / 2) + (layer._coverOffsetY || 0);
       ctx.save();
       ctx.globalAlpha = layer.blend / 100;
       ctx.translate(layer.x, layer.y);
@@ -406,8 +467,13 @@ class Stage {
         // text needs the actual visual center of the box, not the raw
         // registration point, or "centered" text on a topleft-registered
         // layer would still visually pull toward the corner.
-        const boxCx = layer.registration === 'topleft' ? layer.x + (layer._renderW || layer.naturalW) / 2 : layer.x;
-        const boxCy = layer.registration === 'topleft' ? layer.y + (layer._renderH || layer.naturalH) / 2 : layer.y;
+        // Stored during _render(): the CSS-visible box's own center,
+        // already accounting for registration mode and coverStage's crop
+        // centering — reconstructing this inline (a prior version did)
+        // missed the crop offset, pulling text off-center on coverStage
+        // layers by the same amount the crop itself shifted.
+        const boxCx = layer._boxCenterX ?? layer.x;
+        const boxCy = layer._boxCenterY ?? layer.y;
         ctx.translate(boxCx, boxCy);
         ctx.rotate((layer.rotation * Math.PI) / 180);
         // Text scales with the layer, same as the image does — in the
@@ -465,8 +531,15 @@ class Stage {
         } else if (role === 'combined') {
           // mod/urb's headline+subhead+body concatenated onto one sprite —
           // wraps like body copy (long text needs it) but stays centered
-          // in the box rather than pinned to a corner.
-          const maxWidth = (layer._renderW || layer.naturalW) * (layer.registration === 'topleft' ? 1 : layer.scale) * 0.7 || 300;
+          // in the box rather than pinned to a corner. Uses the VISIBLE
+          // (post-crop) box width for coverStage layers — a prior version
+          // used the oversized pre-crop render width instead, which for
+          // mod's hero sprite was ~1467px against a ~850px visible canvas,
+          // wrapping text far wider than what's actually shown.
+          const visibleW = layer.coverStage
+            ? this.width * (layer.coverScaleX ?? 1)
+            : (layer._renderW || layer.naturalW) * (layer.registration === 'topleft' ? 1 : layer.scale);
+          const maxWidth = visibleW * 0.7 || 300;
           const lineHeight = fontSize * 1.4;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
