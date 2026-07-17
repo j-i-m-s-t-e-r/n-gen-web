@@ -142,7 +142,7 @@ select:focus, input[type="text"]:focus {
   padding: 12px;
 }
 .ngen-layer-text span {
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.78);
   color: white;
   font-size: 15px;
   line-height: 1.3;

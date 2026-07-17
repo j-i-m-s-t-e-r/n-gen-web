@@ -133,17 +133,23 @@ class Layer {
     if (!this.textEl) {
       this.textEl = document.createElement('div');
       this.textEl.className = 'ngen-layer-text';
-      // Confirmed against the real app: sprite 47 is always the Headline,
-      // 45 the Subhead, 43 the Body Copy — consistent across generic/cal/
-      // techno/ftool's separate-sprite-per-field pattern. mod/urb instead
-      // pack multiple named vars onto a single sprite (31) — that case
-      // isn't split apart here, still a known simplification (see README).
-      const role = { 47: 'headline', 45: 'subhead', 43: 'body' }[this.id];
-      if (role) this.textEl.dataset.role = role;
       this.textSpan = document.createElement('span');
       this.textEl.appendChild(this.textSpan);
       this.el.appendChild(this.textEl);
     }
+    // Confirmed against the real app: sprite 47 is always the Headline, 45
+    // the Subhead, 43 the Body Copy — consistent across generic/cal/
+    // techno/ftool's separate-sprite-per-field pattern (all keyed 'txt'
+    // regardless of role, since role comes from which SPRITE). mod/urb
+    // instead pack txt1/txt2/txt3 (headline/subhead/body) onto one shared
+    // sprite (31) — role there comes from the KEY instead. Re-evaluated on
+    // every call, not just creation: a prior version only set this once,
+    // so mod/urb's body-copy field never got wrap treatment at all — it
+    // fired after the headline call had already locked in 'headline'.
+    const idRole = { 47: 'headline', 45: 'subhead', 43: 'body' }[this.id];
+    const keyRole = { txt1: 'headline', txt2: 'subhead', txt3: 'body' }[key];
+    const role = idRole || keyRole;
+    if (role) this.textEl.dataset.role = role;
     this.textFont = randomFont(this.stage.currentModule);
     this.textSpan.style.fontFamily = this.textFont;
     // Original modules set several named vars (txt, txt1, txt1cap, txt2,
@@ -222,10 +228,17 @@ class Layer {
     // Default tint path: 'multiply'. Real exported frames are fully opaque
     // full-canvas renders (confirmed against actual n_Gen assets), so
     // multiply-blend colorizes while preserving the texture's own
-    // light/dark detail.
+    // light/dark detail. tintStrength (0-1, default 1) softens this — full
+    // strength on a large "hero image" sprite flattens it into a single
+    // flat color wash, reading as a color swatch rather than an image with
+    // its own tonal variation. Reduced strength on layer 31 (mod/urb) lets
+    // more of the original grayscale tonal range survive the tint.
+    const strength = this.tintStrength ?? 1;
+    ctx.globalAlpha = strength;
     ctx.globalCompositeOperation = 'multiply';
     ctx.fillStyle = rgbToCss(this.color);
     ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = 1;
     // multiply darkens everything including near-white ground — restore
     // the pre-tint alpha shape so we're not compounding opacity with .blend
     ctx.globalCompositeOperation = 'destination-in';
@@ -277,6 +290,7 @@ class Layer {
     this.coverScaleX = undefined;
     this.coverScaleY = undefined;
     this.knockoutBackground = false;
+    this.tintStrength = undefined;
     this.vars = {};
     if (this.textSpan) this.textSpan.textContent = '';
     this._render();
@@ -368,27 +382,34 @@ class Stage {
         if (role === 'body') {
           // Real word-wrap — canvas fillText doesn't wrap on its own, and
           // body copy is genuinely a multi-line paragraph in the real app,
-          // not a one-line caption.
+          // not a one-line caption. Split on explicit newlines FIRST and
+          // wrap each resulting line independently — splitting on /\s+/
+          // across the whole text (a prior version) treated newlines as
+          // just more whitespace to collapse, silently merging every
+          // paragraph/line break the user typed into one continuous flow.
           const maxWidth = layer.naturalW * layer.scale * 0.85 || 300;
           const lineHeight = fontSize * 1.5;
           ctx.textAlign = 'left';
           ctx.textBaseline = 'top';
-          const words = text.split(/\s+/);
           const lines = [];
-          let line = '';
-          for (const word of words) {
-            const test = line ? `${line} ${word}` : word;
-            if (ctx.measureText(test).width > maxWidth && line) {
-              lines.push(line);
-              line = word;
-            } else {
-              line = test;
+          for (const rawLine of text.split('\n')) {
+            if (rawLine.trim() === '') { lines.push(''); continue; }
+            const words = rawLine.split(/ +/);
+            let line = '';
+            for (const word of words) {
+              const test = line ? `${line} ${word}` : word;
+              if (ctx.measureText(test).width > maxWidth && line) {
+                lines.push(line);
+                line = word;
+              } else {
+                line = test;
+              }
             }
+            if (line) lines.push(line);
           }
-          if (line) lines.push(line);
           const boxW = maxWidth + 20;
           const boxH = lines.length * lineHeight + 16;
-          ctx.fillStyle = 'rgba(0,0,0,0.55)';
+          ctx.fillStyle = 'rgba(0,0,0,0.78)';
           ctx.fillRect(-boxW / 2, -boxH / 2, boxW, boxH);
           ctx.fillStyle = '#ffffff';
           lines.forEach((l, i) => {
@@ -401,7 +422,7 @@ class Stage {
           const padX = 10, padY = 4;
           const boxW = metrics.width + padX * 2;
           const boxH = fontSize + padY * 2;
-          ctx.fillStyle = 'rgba(0,0,0,0.55)';
+          ctx.fillStyle = 'rgba(0,0,0,0.78)';
           ctx.fillRect(-boxW / 2, -boxH / 2, boxW, boxH);
           ctx.fillStyle = '#ffffff';
           ctx.fillText(text, 0, 0);

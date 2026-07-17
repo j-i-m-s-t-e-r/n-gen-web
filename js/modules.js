@@ -26,20 +26,24 @@ const MODULES = {
     run(stage) {
       stage.layer(11).setColor([rgb(242, 250, 252), rgb(219, 235, 240), rgb(229, 242, 206)]);
       stage.layer(11).setOnOff(1);
+      const bgColor = stage.layer(11).color;
 
       // These three never receive setColor in the original script either —
       // faithful to the source. But measured against the real app (headless
       // capture), leaving them at the engine's white default produces a
       // dramatic colorfulness gap (confirmed ~12x on the analogous techno
       // case) — Director's true Score-authored default color for these
-      // sprites isn't recoverable from the decompiled scripts, so this
-      // reuses the module's own palette rather than leaving them grayscale.
-      const genPalette = [rgb(242, 250, 252), rgb(219, 235, 240), rgb(229, 242, 206)];
+      // sprites isn't recoverable from the decompiled scripts. Deriving
+      // from the already-chosen background color (rather than each sprite
+      // independently rolling its own random palette entry) keeps the
+      // result harmonious instead of risking clashing combinations —
+      // mirrors a pattern the original itself uses in ftool
+      // (`l21.color = rgbAdd(bgColor, rgb(40,20,20))`).
 
       const l47 = stage.layer(47);
       l47.knockoutBackground = true; // JPEXS flattened these transparent sprites onto flat grey
       l47.setPosition(0, 0, 0, 0);
-      l47.setColor(genPalette);
+      l47.color = rgbSub(bgColor, rgb(60, 50, 40));
       l47.setOnOff(1);
       l47.setFlashFrame();
 
@@ -47,7 +51,7 @@ const MODULES = {
       l45.knockoutBackground = true;
       l45.setPosition(-100, -10, 140, 10);
       l45.setBlend(30, 70);
-      l45.setColor(genPalette);
+      l45.color = rgbAdd(bgColor, rgb(10, -10, -20));
       l45.setOnOff(1);
       l45.setFlashFrame();
 
@@ -56,7 +60,7 @@ const MODULES = {
       l43.setPosition(-100, -200, 100, 100);
       l43.setBlend(40, 70);
       l43.setScale(60, 90);
-      l43.setColor(genPalette);
+      l43.color = rgbSub(bgColor, rgb(30, 20, 40));
       l43.setOnOff(1);
       l43.setFlashFrame();
     },
@@ -73,6 +77,7 @@ const MODULES = {
     run(stage) {
       stage.layer(11).setColor([rgb(1, 1, 1), rgb(255, 255, 255), rgb(50, 50, 60), rgb(50, 50, 40)]);
       stage.layer(11).setOnOff(1);
+      const bgColor = stage.layer(11).color;
 
       const l13 = stage.layer(13);
       l13.setPosition(-500, -200, 500, 200);
@@ -80,9 +85,10 @@ const MODULES = {
       l13.setRotation([0, 90, -90, 180]);
       l13.setSkew([0, 0, 0, 0, 0, 0, 0, -2, 2]);
       l13.setBlend(30, 100);
-      // never colored in the original either — see generic module's note
-      // on the measured colorfulness gap and why this reuses cal's palette
-      l13.setColor([rgb(1, 1, 1), rgb(255, 255, 255), rgb(50, 50, 60), rgb(50, 50, 40)]);
+      // never colored in the original either — see generic module's note.
+      // Derived from bgColor instead of an independent pick, matching the
+      // pattern the original itself uses in ftool.
+      l13.color = rgbAdd(bgColor, rgb(15, 15, 20));
       l13.setRandomOnOff([1, 1, 1, 1, 0]);
       l13.setFlashFrame();
 
@@ -131,17 +137,17 @@ const MODULES = {
         rgb(62, 72, 107), rgb(174, 250, 0), rgb(255, 103, 255), rgb(0, 250, 229), rgb(49, 102, 213),
       ]);
       stage.layer(11).setOnOff(1);
+      const bgColor = stage.layer(11).color;
 
       // 13/21/27/43 never receive setColor in the original script either —
       // faithful to the source. But this is the module where we directly
       // measured the consequence: real app colorfulness averaged 49.1,
       // web port averaged 4.1 (every single web frame less colorful than
-      // every single real frame, zero overlap). Reusing techno's own vivid
-      // palette here rather than leaving these four sprites grayscale.
-      const technoPalette = [
-        rgb(1, 1, 1), rgb(255, 255, 250), rgb(50, 50, 60), rgb(255, 50, 40),
-        rgb(62, 72, 107), rgb(174, 250, 0), rgb(255, 103, 255), rgb(0, 250, 229), rgb(49, 102, 213),
-      ];
+      // every single real frame, zero overlap). Deriving each from the
+      // already-chosen background color (rather than each independently
+      // rolling from the full 9-color vivid palette) keeps the four of
+      // them related instead of risking four clashing saturated hues at
+      // once — mirrors a pattern the original itself uses in ftool.
 
       const l13 = stage.layer(13);
       l13.setPosition(-100, 0, 100, 0);
@@ -149,7 +155,7 @@ const MODULES = {
       l13.setFlipH([1, 0]);
       l13.setRotation([0, 180]);
       l13.setBlend(30, 100);
-      l13.setColor(technoPalette);
+      l13.color = rgbAdd(bgColor, rgb(20, 20, 30));
       l13.setOnOff(1);
       l13.setFlashFrame();
 
@@ -159,7 +165,7 @@ const MODULES = {
       l21.setRotation([0, 90, -90, 180]);
       l21.setPosition(-400, -200, 400, 200);
       l21.setBlend(20, 50);
-      l21.setColor(technoPalette);
+      l21.color = rgbSub(bgColor, rgb(20, 20, 30));
       l21.setFlashFrame();
 
       const l23 = stage.layer(23);
@@ -176,7 +182,7 @@ const MODULES = {
       l27.setFlipH([1, 0]);
       l27.setRotation([0, 90, 180]);
       l27.setBlend(60, 90);
-      l27.setColor(technoPalette);
+      l27.color = rgbAdd(bgColor, rgb(-15, 15, 15));
       l27.setRandomOnOff([1, 0, 0]);
       l27.setScale(50, 100);
       l27.setFlashFrame();
@@ -204,7 +210,7 @@ const MODULES = {
       l43.setScale(90, 120);
       l43.setRotation([0, 0, 0, 0, 0, -90]);
       l43.setBlend(50, 90);
-      l43.setColor(technoPalette);
+      l43.color = rgbAdd(bgColor, rgb(15, -15, 20));
       l43.setOnOff(1);
       l43.setFlashFrame();
     },
@@ -229,6 +235,7 @@ const MODULES = {
       const l31 = stage.layer(31);
       l31.registration = 'topleft'; // full-canvas cover image, not a centered sprite
       l31.coverStage = true; // size as fraction of stage, not of the asset file's pixels
+      l31.tintStrength = 0.4; // full-strength tint flattened this into a color wash instead of an image
       // Never colored in the original either — see generic module's note on
       // the measured colorfulness gap. mod has no existing palette to reuse
       // (its background is always plain white), so this is an invented
@@ -284,7 +291,7 @@ const MODULES = {
       l13.setRotation([0, 180]);
       l13.setBlend(30, 100);
       // never colored in the original either — see generic module's note
-      l13.setColor(bgcolorList);
+      l13.color = rgbAdd(bgColor, rgb(20, 15, 15)); // derived, not independent pick (see generic module note)
       l13.setRandomOnOff([1, 1, 1, 0]);
       l13.setFlashFrame();
 
@@ -313,7 +320,7 @@ const MODULES = {
       ]);
       l27.setFlipH([1, 0]);
       // never colored in the original either — see generic module's note
-      l27.setColor(bgcolorList);
+      l27.color = rgbSub(bgColor, rgb(15, 20, 15));
       l27.setRandomOnOff([1, 0, 0]);
       l27.setScale(50, 100);
       l27.setFlashFrame();
@@ -358,7 +365,7 @@ const MODULES = {
       // never colored in the original either — see generic module's note.
       // Matters extra here: l25 below derives ITS color from l41.color, so
       // leaving l41 white was silently cascading the same problem into l25.
-      l41.setColor(bgcolorList);
+      l41.color = rgbAdd(bgColor, rgb(-15, 15, 20));
 
       const l25 = stage.layer(25);
       l25.setColor([rgb(60, 0, 40), rgb(255, 0, 33), rgb(0, 198, 255), rgb(181, 214, 173), rgb(250, 250, 255)]);
@@ -377,7 +384,7 @@ const MODULES = {
       l52.setFlipH([1, 0]);
       l52.setBlend(80, 90);
       // never colored in the original either — see generic module's note
-      l52.setColor(bgcolorList);
+      l52.color = rgbSub(bgColor, rgb(20, -15, 15));
       l52.setRandomOnOff([1, 1, 1, 0]);
       l52.setScale(80, 100);
       l52.setFlashFrame();
@@ -411,17 +418,14 @@ const MODULES = {
         rgb(153, 0, 0), rgb(91, 105, 115), rgb(111, 151, 155), rgb(174, 250, 0), rgb(255, 255, 255), rgb(235, 255, 255),
       ]);
       stage.layer(11).setOnOff(1);
-
-      const urbPalette = [
-        rgb(1, 1, 1), rgb(5, 67, 98), rgb(61, 74, 83), rgb(88, 100, 126), rgb(255, 98, 0),
-        rgb(153, 0, 0), rgb(91, 105, 115), rgb(111, 151, 155), rgb(174, 250, 0), rgb(255, 255, 255), rgb(235, 255, 255),
-      ];
+      const bgColor = stage.layer(11).color;
 
       const l13 = stage.layer(13);
       l13.setFlipH([1, 0]);
       l13.setBlend(50, 90);
-      // never colored in the original either — see generic module's note
-      l13.setColor(urbPalette);
+      // never colored in the original either — derived from bgColor rather
+      // than an independent pick, see generic module's note
+      l13.color = rgbAdd(bgColor, rgb(20, 15, -15));
       l13.setOnOff(1);
       l13.setFlashFrame();
 
@@ -430,13 +434,14 @@ const MODULES = {
       const l31 = stage.layer(31);
       l31.registration = 'topleft'; // full-canvas cover image, same as mod's sprite 31
       l31.coverStage = true; // size as fraction of stage, not of the asset file's pixels
+      l31.tintStrength = 0.4; // same reasoning as mod's sprite 31
       const l47 = stage.layer(47);
       l31.setPositionPoint(theLeft + pick(Xoffset.slice(0, 2)), theTop + pick(Yoffset.slice(0, 5)));
       l47.setPositionPoint(theLeft + pick(Xoffset.slice(0, 3)), theTop + pick(Yoffset.slice(0, 5)));
 
       l31.setBlend(90, 100);
-      // never colored in the original either — see generic module's note
-      l31.setColor(urbPalette);
+      // never colored in the original either — derived from bgColor
+      l31.color = rgbSub(bgColor, rgb(15, 20, 15));
       l31.setOnOff(1);
       l31.setFlashFrame();
 
