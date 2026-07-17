@@ -137,17 +137,25 @@ const MODULES = {
         rgb(62, 72, 107), rgb(174, 250, 0), rgb(255, 103, 255), rgb(0, 250, 229), rgb(49, 102, 213),
       ]);
       stage.layer(11).setOnOff(1);
-      const bgColor = stage.layer(11).color;
 
       // 13/21/27/43 never receive setColor in the original script either —
-      // faithful to the source. But this is the module where we directly
-      // measured the consequence: real app colorfulness averaged 49.1,
-      // web port averaged 4.1 (every single web frame less colorful than
-      // every single real frame, zero overlap). Deriving each from the
-      // already-chosen background color (rather than each independently
-      // rolling from the full 9-color vivid palette) keeps the four of
-      // them related instead of risking four clashing saturated hues at
-      // once — mirrors a pattern the original itself uses in ftool.
+      // faithful to the source. Measured against the real app, leaving
+      // them uncolored produced a 12x colorfulness gap (49.1 vs 4.1) — so
+      // they need color from somewhere. A prior version derived all four
+      // from bgColor with small deltas to avoid clashing, which
+      // overcorrected: with a palette where several entries are already
+      // grey/neutral, and every sprite forced to stay close to whatever
+      // background got picked, the whole composition collapsed toward one
+      // muted tone instead of using the palette's actual vividness —
+      // confirmed by a real-vs-port comparison showing washed-out grey
+      // output. Independent picks (this version) also better match the
+      // original's real pattern: its own explicitly-colored sprites
+      // (11/23/47/45) all use independent picks, not derivation —
+      // derivation is the rare exception, only ftool does it.
+      const technoPalette = [
+        rgb(1, 1, 1), rgb(255, 255, 250), rgb(50, 50, 60), rgb(255, 50, 40),
+        rgb(62, 72, 107), rgb(174, 250, 0), rgb(255, 103, 255), rgb(0, 250, 229), rgb(49, 102, 213),
+      ];
 
       const l13 = stage.layer(13);
       l13.setPosition(-100, 0, 100, 0);
@@ -155,7 +163,7 @@ const MODULES = {
       l13.setFlipH([1, 0]);
       l13.setRotation([0, 180]);
       l13.setBlend(30, 100);
-      l13.color = rgbAdd(bgColor, rgb(20, 20, 30));
+      l13.setColor(technoPalette);
       l13.setOnOff(1);
       l13.setFlashFrame();
 
@@ -165,7 +173,7 @@ const MODULES = {
       l21.setRotation([0, 90, -90, 180]);
       l21.setPosition(-400, -200, 400, 200);
       l21.setBlend(20, 50);
-      l21.color = rgbSub(bgColor, rgb(20, 20, 30));
+      l21.setColor(technoPalette);
       l21.setFlashFrame();
 
       const l23 = stage.layer(23);
@@ -182,7 +190,7 @@ const MODULES = {
       l27.setFlipH([1, 0]);
       l27.setRotation([0, 90, 180]);
       l27.setBlend(60, 90);
-      l27.color = rgbAdd(bgColor, rgb(-15, 15, 15));
+      l27.setColor(technoPalette);
       l27.setRandomOnOff([1, 0, 0]);
       l27.setScale(50, 100);
       l27.setFlashFrame();
@@ -210,7 +218,7 @@ const MODULES = {
       l43.setScale(90, 120);
       l43.setRotation([0, 0, 0, 0, 0, -90]);
       l43.setBlend(50, 90);
-      l43.color = rgbAdd(bgColor, rgb(15, -15, 20));
+      l43.setColor(technoPalette);
       l43.setOnOff(1);
       l43.setFlashFrame();
     },
@@ -418,14 +426,21 @@ const MODULES = {
         rgb(153, 0, 0), rgb(91, 105, 115), rgb(111, 151, 155), rgb(174, 250, 0), rgb(255, 255, 255), rgb(235, 255, 255),
       ]);
       stage.layer(11).setOnOff(1);
-      const bgColor = stage.layer(11).color;
+
+      // Independent picks, not derived from bgColor — see techno module's
+      // note. Same architectural risk here (vivid multi-color palette +
+      // small-delta derivation collapses the whole composition toward one
+      // muted tone) even without an urb-specific complaint yet.
+      const urbPalette = [
+        rgb(1, 1, 1), rgb(5, 67, 98), rgb(61, 74, 83), rgb(88, 100, 126), rgb(255, 98, 0),
+        rgb(153, 0, 0), rgb(91, 105, 115), rgb(111, 151, 155), rgb(174, 250, 0), rgb(255, 255, 255), rgb(235, 255, 255),
+      ];
 
       const l13 = stage.layer(13);
       l13.setFlipH([1, 0]);
       l13.setBlend(50, 90);
-      // never colored in the original either — derived from bgColor rather
-      // than an independent pick, see generic module's note
-      l13.color = rgbAdd(bgColor, rgb(20, 15, -15));
+      // never colored in the original either — see generic module's note
+      l13.setColor(urbPalette);
       l13.setOnOff(1);
       l13.setFlashFrame();
 
@@ -440,8 +455,8 @@ const MODULES = {
       l47.setPositionPoint(theLeft + pick(Xoffset.slice(0, 3)), theTop + pick(Yoffset.slice(0, 5)));
 
       l31.setBlend(90, 100);
-      // never colored in the original either — derived from bgColor
-      l31.color = rgbSub(bgColor, rgb(15, 20, 15));
+      // never colored in the original either — see generic module's note
+      l31.setColor(urbPalette);
       l31.setOnOff(1);
       l31.setFlashFrame();
 

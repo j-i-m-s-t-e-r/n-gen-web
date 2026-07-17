@@ -147,7 +147,15 @@ class Layer {
     // so mod/urb's body-copy field never got wrap treatment at all — it
     // fired after the headline call had already locked in 'headline'.
     const idRole = { 47: 'headline', 45: 'subhead', 43: 'body' }[this.id];
-    const keyRole = { txt1: 'headline', txt2: 'subhead', txt3: 'body' }[key];
+    // mod/urb pack multiple fields (txt1/txt2/txt3 = headline/subhead/body)
+    // onto ONE shared sprite. Once more than one field has been set here,
+    // this becomes 'combined' rather than whatever the latest field alone
+    // would suggest — a prior version let the last-set key (txt3 -> 'body')
+    // win outright, which applied body-copy's corner alignment to the
+    // ENTIRE concatenated block, pinning headline+subhead+body together to
+    // the top-left of what's usually a full-canvas hero sprite.
+    const isMultiField = Object.keys(this.vars).length > 1;
+    const keyRole = isMultiField ? 'combined' : { txt1: 'headline', txt2: 'subhead', txt3: 'body' }[key];
     const role = idRole || keyRole;
     if (role) this.textEl.dataset.role = role;
     this.textFont = randomFont(this.stage.currentModule);
@@ -368,14 +376,21 @@ class Stage {
       // captions entirely, which the download previously did.
       const text = layer.textSpan && layer.textSpan.textContent;
       if (text) {
-        const role = layer.textEl.dataset.role; // 'headline' | 'subhead' | 'body' | undefined
+        const role = layer.textEl.dataset.role; // 'headline' | 'subhead' | 'body' | 'combined' | undefined
         ctx.save();
         ctx.globalAlpha = layer.blend / 100;
-        ctx.translate(layer.x, layer.y);
+        // (layer.x, layer.y) is the layer's CENTER for normal registration
+        // but its top-left CORNER for 'topleft' (mod/urb's hero sprite) —
+        // text needs the actual visual center of the box, not the raw
+        // registration point, or "centered" text on a topleft-registered
+        // layer would still visually pull toward the corner.
+        const boxCx = layer.registration === 'topleft' ? layer.x + (layer._renderW || layer.naturalW) / 2 : layer.x;
+        const boxCy = layer.registration === 'topleft' ? layer.y + (layer._renderH || layer.naturalH) / 2 : layer.y;
+        ctx.translate(boxCx, boxCy);
         ctx.rotate((layer.rotation * Math.PI) / 180);
 
-        const fontSize = role === 'headline' ? 26 : role === 'subhead' ? 20 : role === 'body' ? 12 : 15;
-        const weight = role === 'headline' ? '700' : role === 'subhead' ? '500' : '600';
+        const fontSize = role === 'headline' ? 26 : role === 'subhead' ? 20 : role === 'body' ? 12 : role === 'combined' ? 16 : 15;
+        const weight = role === 'headline' ? '700' : role === 'subhead' ? '500' : role === 'combined' ? '600' : '600';
         ctx.font = `${weight} ${fontSize}px ${layer.textFont || "'IBM Plex Sans', sans-serif"}`;
         ctx.fillStyle = '#ffffff';
 
@@ -414,6 +429,38 @@ class Stage {
           ctx.fillStyle = '#ffffff';
           lines.forEach((l, i) => {
             ctx.fillText(l, -boxW / 2 + 10, -boxH / 2 + 8 + i * lineHeight);
+          });
+        } else if (role === 'combined') {
+          // mod/urb's headline+subhead+body concatenated onto one sprite —
+          // wraps like body copy (long text needs it) but stays centered
+          // in the box rather than pinned to a corner.
+          const maxWidth = (layer._renderW || layer.naturalW) * (layer.registration === 'topleft' ? 1 : layer.scale) * 0.7 || 300;
+          const lineHeight = fontSize * 1.4;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          const lines = [];
+          for (const rawLine of text.split('\n')) {
+            if (rawLine.trim() === '') { lines.push(''); continue; }
+            const words = rawLine.split(/ +/);
+            let line = '';
+            for (const word of words) {
+              const test = line ? `${line} ${word}` : word;
+              if (ctx.measureText(test).width > maxWidth && line) {
+                lines.push(line);
+                line = word;
+              } else {
+                line = test;
+              }
+            }
+            if (line) lines.push(line);
+          }
+          const boxW = maxWidth + 20;
+          const boxH = lines.length * lineHeight + 16;
+          ctx.fillStyle = 'rgba(0,0,0,0.78)';
+          ctx.fillRect(-boxW / 2, -boxH / 2, boxW, boxH);
+          ctx.fillStyle = '#ffffff';
+          lines.forEach((l, i) => {
+            ctx.fillText(l, 0, -boxH / 2 + 8 + i * lineHeight);
           });
         } else {
           ctx.textAlign = 'center';

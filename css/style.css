@@ -175,6 +175,14 @@ select:focus, input[type="text"]:focus {
   white-space: pre-wrap;
   max-width: 85%;
 }
+.ngen-layer-text[data-role="combined"] span {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  white-space: pre-wrap;
+  max-width: 70%;
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
